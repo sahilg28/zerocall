@@ -1,65 +1,263 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import { useApp } from '@/lib/store';
+import { AnimatedCounter } from '@/components/AnimatedCounter';
+import { CountdownTimer } from '@/components/CountdownTimer';
+import { useMemo, useState } from 'react';
+import { buildLeaderboard } from '@/lib/scoring';
+import { getAllPredictors } from '@/lib/store';
+import { getFlagUrl } from '@/lib/countries';
+
+const PressStart = dynamic(() => import('@/components/PressStart'), { ssr: false });
+
+const sideModes = [
+  {
+    title: 'AGENT ARENA',
+    short: 'Watch six AI agents duel across every fixture.',
+    href: '/agents',
+    color: 'var(--neon-magenta)',
+    icon: '🤖',
+  },
+  {
+    title: 'PENALTY SHOOTOUT',
+    short: 'Five shots vs an AI keeper that reads your tells. +10 0G PTS to win.',
+    href: '/penalty',
+    color: 'var(--neon-orange)',
+    icon: '⚽',
+  },
+  {
+    title: 'HEAD TO HEAD',
+    short: 'Anyone vs anyone. Match-by-match scorecards.',
+    href: '/compare',
+    color: 'var(--neon-cyan)',
+    icon: '⚔️',
+  },
+];
+
+export default function LandingPage() {
+  const { matches, picks, walletAddress } = useApp();
+  const [introDone, setIntroDone] = useState(false);
+
+  const stats = useMemo(() => {
+    const finished = matches.filter((m) => m.status === 'final').length;
+    const upcoming = matches.filter((m) => m.status === 'upcoming').length;
+    const totalGoals = matches
+      .filter((m) => m.result)
+      .reduce((sum, m) => sum + m.result!.home + m.result!.away, 0);
+    const totalPicks = picks.length;
+    return { finished, upcoming, totalGoals, totalPicks };
+  }, [matches, picks]);
+
+  const nextMatch = useMemo(() => {
+    const upcoming = matches
+      .filter((m) => m.status === 'upcoming')
+      .sort((a, b) => new Date(a.kickoffTime).getTime() - new Date(b.kickoffTime).getTime());
+    return upcoming[0];
+  }, [matches]);
+
+  const leadingAgent = useMemo(() => {
+    const predictors = getAllPredictors(walletAddress).filter((p) => p.type === 'agent');
+    const board = buildLeaderboard(predictors, picks, matches);
+    return board[0];
+  }, [matches, picks, walletAddress]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      {!introDone && <PressStart onStart={() => setIntroDone(true)} />}
+      <div className="relative flex flex-col items-center min-h-[calc(100vh-120px)] px-4 py-8">
+        <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
+
+          {/* Status pill */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--neon-green)]/40 bg-[var(--neon-green)]/10 mb-5"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-green)] animate-pulse" />
+            <span className="font-pixel text-[8px] text-[var(--neon-green)] tracking-widest">
+              TOURNAMENT ACTIVE · {stats.totalPicks} PICKS LOCKED
+            </span>
+          </motion.div>
+
+          {/* Compact wordmark — start screen already established the brand */}
+          <motion.h1
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="font-pixel text-2xl sm:text-3xl md:text-4xl text-[var(--neon-green)] mb-8 tracking-wider"
+            style={{ textShadow: '0 0 20px rgba(0,255,136,0.4)' }}
           >
-            Documentation
-          </a>
+            ZEROCALL
+          </motion.h1>
+
+          {/* NEXT MATCH banner */}
+          {nextMatch && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="card-retro w-full max-w-2xl p-4 mb-6 border-[var(--neon-orange)]/30!"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-pixel text-[8px] text-[var(--neon-orange)] tracking-widest">▸ NEXT KICKOFF</span>
+                <CountdownTimer kickoffTime={nextMatch.kickoffTime} />
+              </div>
+              <div className="flex items-center justify-center gap-4 sm:gap-8">
+                <TeamMini name={nextMatch.homeTeam} />
+                <div className="font-pixel text-[var(--text-muted)] text-base">VS</div>
+                <TeamMini name={nextMatch.awayTeam} />
+              </div>
+              {nextMatch.group && (
+                <p className="font-pixel text-[7px] text-[var(--text-muted)] tracking-widest text-center mt-3">
+                  GROUP {nextMatch.group}
+                </p>
+              )}
+            </motion.div>
+          )}
+
+          {/* Stats grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="card-retro p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 md:gap-12 justify-items-center mb-6 w-full max-w-2xl"
+          >
+            <AnimatedCounter value={stats.finished} label="PLAYED" color="var(--neon-green)" />
+            <AnimatedCounter value={stats.totalGoals} label="GOALS" color="var(--neon-cyan)" />
+            <AnimatedCounter value={stats.upcoming} label="UPCOMING" color="var(--neon-orange)" />
+            <AnimatedCounter value={stats.totalPicks} label="PREDICTIONS" color="var(--neon-magenta)" />
+          </motion.div>
+
+          {/* Hero row: GLOBAL big + agent leader */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 w-full mb-3">
+            {/* GLOBAL hero card — spans 2 cols on lg */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="lg:col-span-2"
+            >
+              <Link href="/global" className="block group">
+                <div
+                  className="card-retro p-6 h-full relative overflow-hidden cursor-pointer transition-all hover:border-[var(--neon-green)]!"
+                  style={{ borderColor: 'rgba(0,255,136,0.4)' }}
+                >
+                  {/* Pulse accent */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[var(--neon-green)]/10 blur-2xl group-hover:bg-[var(--neon-green)]/20 transition-colors" />
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-4xl">🏆</span>
+                      <h2 className="font-pixel text-lg sm:text-xl text-[var(--neon-green)] tracking-wider">GLOBAL ARENA</h2>
+                    </div>
+                    <p className="font-retro text-base sm:text-lg text-[var(--text-muted)] mb-4 max-w-md">
+                      Predict every World Cup match before kickoff. Climb the global leaderboard. Every pick locks on 0G.
+                    </p>
+                    <span className="inline-flex items-center gap-2 font-pixel text-[10px] text-[var(--neon-green)] group-hover:gap-3 transition-all">
+                      PREDICT NOW <span>→</span>
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Leading agent card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Link href="/agents" className="block group h-full">
+                <div className="card-retro p-5 h-full cursor-pointer transition-all hover:border-[var(--neon-magenta)]!"
+                  style={{ borderColor: 'rgba(255,0,255,0.3)' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-magenta)] animate-pulse" />
+                    <h3 className="font-pixel text-[8px] text-[var(--neon-magenta)] tracking-widest">AGENT LEADER</h3>
+                  </div>
+                  {leadingAgent ? (
+                    <>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-3xl">{(leadingAgent.predictor as { avatar?: string }).avatar ?? '🤖'}</span>
+                        <div>
+                          <p className="font-pixel text-sm text-white">{leadingAgent.predictor.displayName.toUpperCase()}</p>
+                          <p className="font-pixel text-[8px] text-[var(--neon-magenta)] mt-1">{leadingAgent.points} PTS</p>
+                        </div>
+                      </div>
+                      <p className="font-retro text-sm text-[var(--text-muted)]">
+                        {leadingAgent.correctOutcomes}/{leadingAgent.totalPicks} correct · {leadingAgent.exactScores} exact scores.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-retro text-sm text-[var(--text-muted)]">
+                      Six AI agents predict every fixture. Watch them duel.
+                    </p>
+                  )}
+                  <span className="inline-flex items-center gap-1 font-pixel text-[9px] text-[var(--neon-magenta)] mt-3 group-hover:gap-2 transition-all">
+                    SEE STANDINGS →
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Side modes — 3 small */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mb-8">
+            {sideModes.map((m, i) => (
+              <motion.div
+                key={m.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 + i * 0.08 }}
+              >
+                <Link href={m.href} className="block group h-full">
+                  <div
+                    className="card-retro p-4 h-full cursor-pointer transition-all"
+                    style={{ borderColor: `${m.color}33` }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{m.icon}</span>
+                      <h3 className="font-pixel text-[10px] tracking-wider" style={{ color: m.color }}>
+                        {m.title}
+                      </h3>
+                    </div>
+                    <p className="font-retro text-sm text-[var(--text-muted)] leading-snug">{m.short}</p>
+                    <span className="inline-flex items-center gap-1 font-pixel text-[8px] mt-2 group-hover:gap-2 transition-all" style={{ color: m.color }}>
+                      ENTER →
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            transition={{ delay: 1.2 }}
+            className="font-pixel text-[7px] text-[var(--text-muted)] mt-4 tracking-widest"
+          >
+            BUILT ON 0G
+          </motion.p>
         </div>
-      </main>
+      </div>
+    </>
+  );
+}
+
+function TeamMini({ name }: { name: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <img
+        src={getFlagUrl(name)}
+        alt={name}
+        className="w-12 h-8 sm:w-14 sm:h-9 object-cover rounded-sm border border-white/15"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+      />
+      <span className="font-pixel text-[9px] sm:text-[10px] text-white tracking-wider">{name.toUpperCase()}</span>
     </div>
   );
 }

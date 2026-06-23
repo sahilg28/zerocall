@@ -1,26 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --neon-green: #00ff88;
+  --neon-cyan: #00e5ff;
+  --neon-magenta: #ff00ff;
+  --neon-orange: #ff6600;
+  --neon-yellow: #ffe600;
+  --text-primary: #e0e7ff;
+  --text-muted: #8892b0;
+  --pitch-green: #1a4d2e;
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --font-sans: 'VT323', monospace;
+  --font-mono: 'Press Start 2P', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* CRT Scanlines overlay */
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.08) 0px,
+    rgba(0, 0, 0, 0.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* CRT flicker */
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.97; }
+  15% { opacity: 0.94; }
+  20% { opacity: 0.98; }
+  100% { opacity: 0.97; }
+}
+
+.crt-flicker {
+  animation: flicker 4s infinite;
+}
+
+/* Pixel font headings */
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-retro {
+  font-family: 'VT323', monospace;
+}
+
+/* Neon glow effects */
+.glow-green {
+  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+}
+
+.glow-cyan {
+  text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+}
+
+.glow-magenta {
+  text-shadow: 0 0 10px var(--neon-magenta), 0 0 20px var(--neon-magenta), 0 0 40px var(--neon-magenta);
+}
+
+/* Card styling */
+.card-retro {
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.card-retro:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-cyan);
+  border-radius: 3px;
+}
+
+/* Ad board strip */
+.ad-board {
+  background: var(--pitch-green);
+  border-top: 2px solid var(--neon-green);
+  border-bottom: 2px solid var(--neon-green);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.ad-board-text {
+  display: inline-block;
+  animation: scroll-left 20s linear infinite;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: var(--neon-green);
+  letter-spacing: 2px;
+}
+
+/* Button styles */
+.btn-neon {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 12px 24px;
+  border: 2px solid var(--neon-cyan);
+  background: transparent;
+  color: var(--neon-cyan);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+
+.btn-neon:hover {
+  background: var(--neon-cyan);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.btn-neon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-neon:disabled:hover {
+  background: transparent;
+  color: var(--neon-cyan);
+  box-shadow: none;
+}
+
+.btn-lock {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+
+.btn-lock:hover {
+  background: var(--neon-green);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+/* Prophet moment */
+@keyframes prophet-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.prophet-card {
+  animation: prophet-pulse 2s ease-in-out infinite;
+}
+
+/* Outcome badge */
+.outcome-badge {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.outcome-home { background: rgba(0, 255, 136, 0.2); color: var(--neon-green); }
+.outcome-draw { background: rgba(255, 230, 0, 0.2); color: var(--neon-yellow); }
+.outcome-away { background: rgba(255, 0, 255, 0.2); color: var(--neon-magenta); }
+.outcome-correct { background: rgba(0, 255, 136, 0.3); border: 1px solid var(--neon-green); }
+.outcome-wrong { background: rgba(255, 50, 50, 0.2); border: 1px solid #ff3232; color: #ff6666; }
+
+/* ─── Glitch wordmark (used by PressStart) ─────────────────────────────── */
+.glitch { position: relative; display: inline-block; }
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--neon-cyan);
+  transform: translate(-2px, 0);
+  mix-blend-mode: screen;
+  clip-path: inset(0 0 55% 0);
+  animation: glitch-top 2.6s infinite steps(8, end);
+}
+.glitch::after {
+  color: var(--neon-magenta);
+  transform: translate(2px, 0);
+  mix-blend-mode: screen;
+  clip-path: inset(55% 0 0 0);
+  animation: glitch-bot 2.8s infinite steps(8, end);
+}
+@keyframes glitch-top {
+  0%, 92%, 100% { transform: translate(-2px, 0); }
+  93% { transform: translate(-5px, -1px); }
+  95% { transform: translate(3px, 2px); }
+  97% { transform: translate(-2px, 1px); }
+}
+@keyframes glitch-bot {
+  0%, 90%, 100% { transform: translate(2px, 0); }
+  91% { transform: translate(5px, 1px); }
+  94% { transform: translate(-3px, -2px); }
+  96% { transform: translate(2px, -1px); }
+}
+
+/* ─── PRESS START arcade button pulse ─────────────────────────────────── */
+.press-start-btn {
+  position: relative;
+  background: rgba(0, 255, 136, 0.05);
+  box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7), inset 0 0 20px rgba(0, 255, 136, 0.15);
+  animation: press-pulse 1.4s ease-in-out infinite;
+  transition: background 0.15s, color 0.15s;
+}
+.press-start-btn:hover {
+  background: var(--neon-green);
+  color: var(--bg-primary) !important;
+  animation: none;
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+}
+@keyframes press-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.15); }
+  50% { box-shadow: 0 0 25px 8px rgba(0, 255, 136, 0.0), inset 0 0 25px rgba(0, 255, 136, 0.3); }
 }
