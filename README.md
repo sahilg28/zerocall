@@ -122,46 +122,6 @@ When you or an agent nails an upset prediction with the exact score, the app tri
 
 ---
 
-## Project Structure 📁
-
-```
-zero_oracle/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Landing page with stats, next match, and mode cards
-│   │   ├── layout.tsx            # Root layout with Nav, Ticker, CRT effects
-│   │   ├── global/page.tsx       # Global prediction arena
-│   │   ├── agents/page.tsx       # Agent arena with per-agent breakdowns
-│   │   ├── penalty/page.tsx      # 3D penalty shootout minigame
-│   │   ├── compare/page.tsx      # Head-to-head comparison tool
-│   │   ├── leaderboard/page.tsx  # Unified global leaderboard
-│   │   └── api/
-│   │       ├── storage/route.ts  # POST endpoint: uploads picks to 0G Storage
-│   │       └── agents/route.ts   # POST endpoint: generates AI predictions via 0G Compute
-│   ├── components/               # 16 reusable UI components
-│   │   ├── AppProvider.tsx       # Global state context provider
-│   │   ├── PickModal.tsx         # Prediction submission modal with 0G locking
-│   │   ├── MatchCard.tsx         # Individual match display card
-│   │   ├── Leaderboard.tsx       # Shared leaderboard table component
-│   │   ├── Nav.tsx               # Navigation with wallet connect and guest mode
-│   │   ├── PressStart.tsx        # Retro arcade intro splash screen
-│   │   └── ...                   # CountdownTimer, MatchTicker, ShareCard, etc.
-│   ├── lib/
-│   │   ├── storage.ts            # 0G Storage SDK integration (Merkle tree + upload)
-│   │   ├── agents.ts             # AI agent personas and 0G Compute inference
-│   │   ├── scoring.ts            # Points calculation and leaderboard builder
-│   │   ├── store.ts              # Client-side state management (Context + localStorage)
-│   │   ├── types.ts              # TypeScript interfaces and agent definitions
-│   │   └── countries.ts          # Country flag URL utility
-│   └── data/
-│       └── matches.json          # World Cup 2026 group stage fixture data
-├── .env.example                  # Environment variable template
-├── package.json
-└── LICENSE
-```
-
----
-
 ## Getting Started 🚀
 
 ### Prerequisites
@@ -173,48 +133,21 @@ zero_oracle/
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/zero_oracle.git
-cd zero_oracle
+git clone https://github.com/sahilg28/zerocall.git
+cd zerocall
 
 # Install dependencies
 npm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your keys (see Environment Variables section below)
+# Edit .env with your keys
 
 # Start the development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser. 🖥️
-
----
-
-## Environment Variables ⚙️
-
-Create a `.env` file in the root directory using `.env.example` as a template. **Never commit your `.env` file to version control.** 🔐
-
-| Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
-| `RPC_URL` | No | 0G Galileo Testnet RPC endpoint | `https://evmrpc-testnet.0g.ai` |
-| `CHAIN_ID` | No | Galileo Testnet chain ID | `16602` |
-| `PRIVATE_KEY` | Yes* | Hot wallet private key for signing 0G Storage uploads | - |
-| `STORAGE_INDEXER` | No | 0G Storage indexer URL | `https://indexer-storage-testnet-turbo.0g.ai` |
-| `ZG_SERVICE_URL` | No | 0G Compute service proxy URL | - |
-| `ZG_API_SECRET` | No | API secret for 0G Compute inference | - |
-| `ZG_MODEL` | No | AI model identifier | `qwen/qwen-2.5-7b-instruct` |
-
-*If `PRIVATE_KEY` is not set, the app falls back to a local demo mode using deterministic content hashes. The UI remains fully functional but predictions are not anchored on-chain. ⚠️
-
-### Deploying to Vercel 🌐
-
-1. Push your repository to GitHub 📤
-2. Import the project in [Vercel](https://vercel.com) 🔗
-3. Add each environment variable above in **Settings > Environment Variables** 🔧
-4. Deploy. Vercel auto-detects Next.js and handles the build. ✅
-
-> **Important**: Set your `PRIVATE_KEY` as an encrypted environment variable in Vercel. Never expose it in client-side code or commit it to the repository. 🔒
 
 ---
 
