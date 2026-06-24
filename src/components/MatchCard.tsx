@@ -25,42 +25,44 @@ export function MatchCard({ match, onPick, userPick, index }: MatchCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.3 }}
-      className={`card-retro p-4 ${
+      className={`card-retro p-3 sm:p-4 ${
         userCorrect === true
-          ? 'border-[var(--neon-green)]! shadow-[0_0_15px_rgba(0,255,136,0.2)]'
+          ? 'border-[var(--neon-green)]/50! shadow-[0_0_20px_rgba(0,255,136,0.12),inset_0_0_30px_rgba(0,255,136,0.03)] border-t-3! border-t-[var(--neon-green)]!'
           : userCorrect === false
-            ? 'border-red-500/50!'
-            : ''
+            ? 'border-red-500/40! border-t-3! border-t-red-500/50!'
+            : isFinal
+              ? 'border-white/8!'
+              : 'border-t-3! border-t-[var(--neon-cyan)]/30!'
       }`}
     >
       {/* Status + Group */}
-      <div className="flex justify-between items-center mb-3">
-        <span className="font-pixel text-[9px] text-[var(--neon-cyan)]">
+      <div className="flex justify-between items-center mb-2 sm:mb-3">
+        <span className="font-pixel text-[7px] sm:text-[9px] text-[var(--neon-cyan)] tracking-wider">
           {match.group ? `GROUP ${match.group}` : 'KNOCKOUT'}
         </span>
         {match.status === 'upcoming' ? (
           <CountdownTimer kickoffTime={match.kickoffTime} />
         ) : (
           <span
-            className={`font-pixel text-[9px] ${
-              isFinal ? 'text-[var(--text-muted)]' : 'text-[var(--neon-green)] glow-green'
+            className={`font-pixel text-[7px] sm:text-[9px] px-2 py-0.5 border ${
+              isFinal ? 'text-[var(--text-muted)] bg-white/5 border-white/10' : 'text-[var(--neon-green)] bg-[var(--neon-green)]/10 border-[var(--neon-green)]/30'
             }`}
           >
-            {isFinal ? 'FINAL' : '● LIVE'}
+            {isFinal ? 'FT' : '● LIVE'}
           </span>
         )}
       </div>
 
       {/* Teams */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         <TeamBadge name={match.homeTeam} />
-        <div className="text-center">
+        <div className="text-center shrink-0 px-1">
           {isFinal && match.result ? (
-            <div className="font-pixel text-2xl text-[var(--neon-green)]">
+            <div className="font-pixel text-lg sm:text-2xl text-[var(--neon-green)] tabular-nums">
               {match.result.home} - {match.result.away}
             </div>
           ) : (
-            <span className="font-pixel text-xl text-[var(--text-muted)]">VS</span>
+            <span className="font-pixel text-base sm:text-xl text-[var(--text-muted)]">VS</span>
           )}
         </div>
         <TeamBadge name={match.awayTeam} />
@@ -133,16 +135,16 @@ export function MatchCard({ match, onPick, userPick, index }: MatchCardProps) {
 
 function TeamBadge({ name }: { name: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 min-w-[80px]">
+    <div className="flex flex-col items-center gap-1 min-w-0 flex-1">
       <img
         src={getFlagUrl(name)}
         alt={name}
-        className="w-10 h-7 object-cover rounded-sm border border-white/10"
+        className="w-8 h-5 sm:w-10 sm:h-7 object-cover rounded-sm border border-white/10"
         onError={(e) => {
           (e.target as HTMLImageElement).style.display = 'none';
         }}
       />
-      <span className="font-pixel text-[9px] text-center leading-tight">{name.toUpperCase()}</span>
+      <span className="font-pixel text-[7px] sm:text-[9px] text-center leading-tight truncate max-w-full">{name.toUpperCase()}</span>
     </div>
   );
 }

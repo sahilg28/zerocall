@@ -6,6 +6,7 @@ import { Nav } from '@/components/Nav';
 import { MatchTicker } from '@/components/MatchTicker';
 import SiteBackground from '@/components/SiteBackground';
 import { PageLoader } from '@/components/PageLoader';
+import { ZeroGFeed } from '@/components/ZeroGFeed';
 
 export const metadata: Metadata = {
   title: 'ZeroCall — Predict the World Cup. Beat the AI. On 0G.',
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="relative z-[1] flex flex-col min-h-screen">
             <Nav />
             <MatchTicker />
+            <ZeroGFeed />
             <main className="flex-1">{children}</main>
             <AdBoard />
           </div>

@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { AppContext, loadPicks, savePicks, loadWallet, saveWallet, getAllPredictors } from '@/lib/store';
-import { Match, Pick, AGENT_IDS } from '@/lib/types';
+import { Match, Pick, AGENT_IDS, AGENTS } from '@/lib/types';
 import { generateAllAgentPicks } from '@/lib/agents';
+import { emitZeroGEvent } from '@/components/ZeroGFeed';
 import fallbackMatches from '@/data/matches.json';
 
 const REFRESH_INTERVAL = 5 * 60 * 1000;
@@ -34,10 +35,45 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return fallbackMatches as Match[];
     }
 
-    fetchMatches().then((m) => {
+    fetchMatches().then(async (m) => {
       const userPicks = loadPicks();
-      const agentPicks = generateAllAgentPicks(m);
-      setPicks([...userPicks, ...agentPicks]);
+      const fallbackPicks = generateAllAgentPicks(m);
+      setPicks([...userPicks, ...fallbackPicks]);
+
+      // Try 0G Compute for upcoming matches (fire-and-forget, updates in background)
+      const upcoming = m.filter((match) => match.status === 'upcoming').slice(0, 5);
+      for (const match of upcoming) {
+        for (const agent of AGENTS) {
+          try {
+            emitZeroGEvent({ type: 'ai-request', message: `${agent.displayName} analyzing ${match.homeTeam} vs ${match.awayTeam}…` });
+            const res = await fetch('/api/agents', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ agentId: agent.id, match }),
+            });
+            if (!res.ok) continue;
+            const { prediction } = await res.json();
+            if (!prediction) continue;
+            emitZeroGEvent({ type: 'ai-success', message: `${agent.displayName} predicted ${match.homeTeam} vs ${match.awayTeam}` });
+            const pick: Pick = {
+              id: `${agent.id}-${match.id}`,
+              predictorId: agent.id,
+              matchId: match.id,
+              outcome: prediction.outcome,
+              score: prediction.score,
+              reason: prediction.oneLineReason,
+              timestamp: new Date().toISOString(),
+              storageRef: `0g-compute-${Date.now().toString(16)}`,
+            };
+            setPicks((prev) => {
+              const filtered = prev.filter((p) => !(p.predictorId === pick.predictorId && p.matchId === pick.matchId));
+              return [...filtered, pick];
+            });
+          } catch {
+            emitZeroGEvent({ type: 'ai-error', message: `${agent.displayName} fallback for ${match.homeTeam} vs ${match.awayTeam}` });
+          }
+        }
+      }
     });
 
     const interval = setInterval(async () => {

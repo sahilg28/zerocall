@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Match, Pick, Outcome } from '@/lib/types';
 import { useApp } from '@/lib/store';
 import { getFlagUrl } from '@/lib/countries';
+import { emitZeroGEvent } from '@/components/ZeroGFeed';
 
 interface PickModalProps {
   match: Match | null;
@@ -61,6 +62,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
     let isDemo = false;
 
     try {
+      emitZeroGEvent({ type: 'storage-upload', message: `Anchoring ${match.homeTeam} vs ${match.awayTeam} on 0G…` });
       const res = await fetch('/api/storage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,9 +80,11 @@ export function PickModal({ match, onClose }: PickModalProps) {
       storageRef = data.rootHash || '';
       explorerUrl = data.explorerUrl || '';
       isDemo = !!data.demo;
+      emitZeroGEvent({ type: 'storage-success', message: `Prediction anchored on 0G Storage`, hash: storageRef });
     } catch (err) {
       isDemo = true;
       setLockError(err instanceof Error ? err.message : 'Storage unavailable');
+      emitZeroGEvent({ type: 'storage-error', message: 'Storage fallback — demo hash used' });
     }
 
     const pick: Pick = {
@@ -114,7 +118,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="card-retro p-6 w-full max-w-md mx-4 border-[var(--neon-cyan)]!"
+          className="card-retro p-5 sm:p-6 w-full max-w-md mx-4 border-[var(--neon-cyan)]/60! border-t-3! border-t-[var(--neon-cyan)]!"
         >
           {locked ? (
             <motion.div
@@ -223,14 +227,14 @@ export function PickModal({ match, onClose }: PickModalProps) {
                       else if (o === 'away') { setHomeScore(1); setAwayScore(2); }
                       else { setHomeScore(1); setAwayScore(1); }
                     }}
-                    className={`p-3 border rounded-sm font-pixel text-[10px] transition-all ${
+                    className={`p-3 border-2 font-pixel text-[9px] sm:text-[10px] transition-all ${
                       outcome === o
                         ? o === 'home'
-                          ? 'border-[var(--neon-green)] bg-[var(--neon-green)]/10 text-[var(--neon-green)]'
+                          ? 'border-[var(--neon-green)] bg-[var(--neon-green)]/10 text-[var(--neon-green)] shadow-[inset_0_0_20px_rgba(0,255,136,0.06),0_2px_0_rgba(0,255,136,0.2)]'
                           : o === 'away'
-                            ? 'border-[var(--neon-magenta)] bg-[var(--neon-magenta)]/10 text-[var(--neon-magenta)]'
-                            : 'border-[var(--neon-yellow)] bg-[var(--neon-yellow)]/10 text-[var(--neon-yellow)]'
-                        : 'border-white/20 text-[var(--text-muted)] hover:border-white/40'
+                            ? 'border-[var(--neon-magenta)] bg-[var(--neon-magenta)]/10 text-[var(--neon-magenta)] shadow-[inset_0_0_20px_rgba(255,0,255,0.06),0_2px_0_rgba(255,0,255,0.2)]'
+                            : 'border-[var(--neon-yellow)] bg-[var(--neon-yellow)]/10 text-[var(--neon-yellow)] shadow-[inset_0_0_20px_rgba(255,230,0,0.06),0_2px_0_rgba(255,230,0,0.2)]'
+                        : 'border-white/15 text-[var(--text-muted)] hover:border-white/30 shadow-[inset_0_0_12px_rgba(255,255,255,0.01),0_2px_0_rgba(255,255,255,0.05)]'
                     }`}
                   >
                     {o === 'home' ? match.homeTeam : o === 'away' ? match.awayTeam : 'DRAW'}
@@ -254,7 +258,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => updateHomeScore(Math.max(0, homeScore - 1))}
-                          className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
+                          className="w-7 h-7 border-2 border-white/15 text-white/60 hover:border-white/30 font-pixel text-xs shadow-[inset_0_0_8px_rgba(255,255,255,0.02),0_1px_0_rgba(255,255,255,0.05)]"
                         >
                           -
                         </button>
@@ -263,7 +267,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                         </span>
                         <button
                           onClick={() => updateHomeScore(Math.min(9, homeScore + 1))}
-                          className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
+                          className="w-7 h-7 border-2 border-white/15 text-white/60 hover:border-white/30 font-pixel text-xs shadow-[inset_0_0_8px_rgba(255,255,255,0.02),0_1px_0_rgba(255,255,255,0.05)]"
                         >
                           +
                         </button>
@@ -274,7 +278,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => updateAwayScore(Math.max(0, awayScore - 1))}
-                          className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
+                          className="w-7 h-7 border-2 border-white/15 text-white/60 hover:border-white/30 font-pixel text-xs shadow-[inset_0_0_8px_rgba(255,255,255,0.02),0_1px_0_rgba(255,255,255,0.05)]"
                         >
                           -
                         </button>
@@ -283,7 +287,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                         </span>
                         <button
                           onClick={() => updateAwayScore(Math.min(9, awayScore + 1))}
-                          className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
+                          className="w-7 h-7 border-2 border-white/15 text-white/60 hover:border-white/30 font-pixel text-xs shadow-[inset_0_0_8px_rgba(255,255,255,0.02),0_1px_0_rgba(255,255,255,0.05)]"
                         >
                           +
                         </button>

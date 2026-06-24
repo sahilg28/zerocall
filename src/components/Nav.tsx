@@ -59,7 +59,6 @@ export function Nav() {
     { href: '/global', label: 'PREDICT' },
     { href: '/agents', label: 'AGENTS' },
     { href: '/penalty', label: 'PENALTY' },
-    { href: '/leaderboard', label: 'LEADERBOARD' },
   ];
 
   const connectWallet = async () => {
@@ -102,26 +101,26 @@ export function Nav() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-[var(--bg-primary)]/95 backdrop-blur border-b border-[var(--neon-cyan)]/20">
+      <nav className="sticky top-0 z-50 bg-[var(--bg-primary)]/90 backdrop-blur-md border-b border-[var(--neon-cyan)]/15 shadow-[0_2px_16px_rgba(0,0,0,0.4)]">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-          <Link href="/" className="font-pixel text-sm text-[var(--neon-green)] glow-green flex items-center gap-2">
-            <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden>
+          <Link href="/" className="font-pixel text-xs sm:text-sm text-[var(--neon-green)] flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 64 64" aria-hidden className="shrink-0">
               <rect width="64" height="64" rx="10" fill="#0a0e1a" stroke="#00ff88" strokeOpacity="0.4"/>
               <path d="M16 18 H48 V26 L26 46 H48 V54 H16 V46 L38 26 H16 Z" fill="#00ff88"/>
             </svg>
             ZEROCALL
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop nav — thick arcade buttons */}
+          <div className="hidden md:flex items-center gap-1.5">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-pixel text-[9px] tracking-wider transition-all px-2.5 py-1.5 rounded-sm ${
+                className={`font-pixel text-[8px] tracking-wider transition-all px-3 py-2 border-2 ${
                   pathname === link.href
-                    ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10'
-                    : 'text-[var(--text-muted)] hover:text-[var(--neon-cyan)] hover:bg-white/5'
+                    ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 border-[var(--neon-cyan)]/40 shadow-[inset_0_0_20px_rgba(0,229,255,0.06),0_2px_0_rgba(0,229,255,0.2)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--neon-cyan)] hover:bg-white/5 border-white/10 hover:border-[var(--neon-cyan)]/30 shadow-[inset_0_0_12px_rgba(255,255,255,0.01),0_2px_0_rgba(255,255,255,0.05)]'
                 }`}
               >
                 {link.label}
@@ -216,16 +215,16 @@ export function Nav() {
               exit={{ height: 0, opacity: 0 }}
               className="md:hidden overflow-hidden border-t border-white/10"
             >
-              <div className="px-4 py-2 flex flex-wrap gap-2">
+              <div className="px-4 py-3 flex flex-wrap gap-2">
                 {links.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setShowMobileMenu(false)}
-                    className={`font-pixel text-[9px] px-3 py-2 rounded-sm ${
+                    className={`font-pixel text-[8px] px-3 py-2 border-2 transition-all ${
                       pathname === link.href
-                        ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10'
-                        : 'text-[var(--text-muted)]'
+                        ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 border-[var(--neon-cyan)]/40 shadow-[inset_0_0_16px_rgba(0,229,255,0.06)]'
+                        : 'text-[var(--text-muted)] border-white/10'
                     }`}
                   >
                     {link.label}

@@ -101,7 +101,7 @@ export default function PressStart({ onStart }: PressStartProps) {
           }} />
 
           {/* Content */}
-          <div className="relative z-[2] flex flex-col items-center text-center px-6">
+          <div className="relative z-[2] flex flex-col items-center text-center px-4 sm:px-6">
             {/* Tiny header */}
             <motion.p
               initial={{ opacity: 0, y: -10 }}
@@ -117,7 +117,7 @@ export default function PressStart({ onStart }: PressStartProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.35, type: 'spring', stiffness: 120 }}
-              className="font-pixel text-4xl md:text-7xl text-white mb-4 select-none glitch"
+              className="font-pixel text-2xl sm:text-4xl md:text-7xl text-white mb-3 sm:mb-4 select-none glitch"
               data-text="ZEROCALL"
               style={{
                 textShadow: '0 0 10px rgba(0,255,136,0.4), 0 0 20px rgba(0,255,136,0.15)',
@@ -132,7 +132,7 @@ export default function PressStart({ onStart }: PressStartProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="font-retro text-lg md:text-2xl text-[var(--text-muted)] mb-3 max-w-2xl"
+              className="font-retro text-sm sm:text-lg md:text-2xl text-[var(--text-muted)] mb-2 sm:mb-3 max-w-2xl"
             >
               Predict every match before kickoff. Beat our <span className="text-[var(--neon-magenta)]">AI agents</span>. Lock every call <span className="text-[var(--neon-green)]">on 0G</span>.
             </motion.p>

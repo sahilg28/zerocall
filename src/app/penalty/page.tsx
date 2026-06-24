@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AGENTS } from '@/lib/types';
 import { isMuted as _isMuted } from '@/lib/store';
+import { emitZeroGEvent } from '@/components/ZeroGFeed';
 
 type Direction = 'left' | 'center-left' | 'center' | 'center-right' | 'right';
 type Height = 'low' | 'mid' | 'high';
@@ -195,9 +196,9 @@ const DIR_X: Record<Direction, number> = { left: 0.08, 'center-left': 0.3, cente
 const HEIGHT_Y: Record<Height, number> = { high: 0.12, mid: 0.5, low: 0.85 };
 
 export default function PenaltyPage() {
-  const [selectedAgent, setSelectedAgent] = useState(AGENTS[0]);
+  const [selectedAgent] = useState(() => AGENTS[Math.floor(Math.random() * AGENTS.length)]);
   const [round, setRound] = useState(1);
-  const [phase, setPhase] = useState<'select' | 'ready' | 'aiming' | 'power' | 'height-select' | 'shooting' | 'result' | 'done'>('select');
+  const [phase, setPhase] = useState<'intro' | 'ready' | 'aiming' | 'power' | 'height-select' | 'shooting' | 'result' | 'done'>('intro');
   const [shots, setShots] = useState<ShotResult[]>([]);
   const [lastResult, setLastResult] = useState<ShotResult | null>(null);
   const [chosenDir, setChosenDir] = useState<Direction>('center');
@@ -218,6 +219,7 @@ export default function PenaltyPage() {
     scored: boolean; power: number;
   } | null>(null);
   const canvasSizeRef = useRef({ w: 960, h: 540 });
+  const shakeRef = useRef({ intensity: 0, decay: 0.92 });
 
   const totalRounds = 5;
   const scored = shots.filter(s => s.scored).length;
@@ -272,10 +274,32 @@ export default function PenaltyPage() {
 
   const executeShot = (dir: Direction, height: Height, pwr: number) => {
     const gk = getGKChoice(selectedAgent.id, shots);
-    const dirMatch = dir === gk.dir;
-    const heightMatch = height === gk.height;
-    const isSaved = dirMatch && heightMatch;
+
+    const dirIdx = ALL_DIRS.indexOf(dir);
+    const gkDirIdx = ALL_DIRS.indexOf(gk.dir);
+    const dirDist = Math.abs(dirIdx - gkDirIdx);
+
+    const heightIdx = ALL_HEIGHTS.indexOf(height);
+    const gkHeightIdx = ALL_HEIGHTS.indexOf(gk.height);
+    const heightDist = Math.abs(heightIdx - gkHeightIdx);
+
+    let saveChance = 0;
+    if (dirDist === 0 && heightDist === 0) saveChance = 0.92;
+    else if (dirDist === 0 && heightDist === 1) saveChance = 0.55;
+    else if (dirDist === 1 && heightDist === 0) saveChance = 0.50;
+    else if (dirDist === 1 && heightDist === 1) saveChance = 0.25;
+    else if (dirDist === 2 && heightDist === 0) saveChance = 0.10;
+
+    // GK reads your body language — base reaction bonus
+    saveChance += 0.05;
+
+    // Power outside sweet spot reduces accuracy
     const isWild = pwr > 93 && height === 'high';
+    const isWeak = pwr < 25;
+    if (pwr > 85 || pwr < 35) saveChance += 0.08;
+    if (isWeak) saveChance += 0.15;
+
+    const isSaved = Math.random() < Math.min(saveChance, 0.95);
     const didScore = !isSaved && !isWild;
     const result: ShotResult = { round, direction: dir, height, power: pwr, gkDirection: gk.dir, gkHeight: gk.height, scored: didScore };
 
@@ -299,6 +323,7 @@ export default function PenaltyPage() {
   const finishShot = useCallback(() => {
     if (!lastResult) return;
     shootAnimRef.current = null;
+    shakeRef.current.intensity = lastResult.scored ? 12 : 6;
     if (lastResult.scored) { soundRef.current?.goal(); soundRef.current?.crowd(); soundRef.current?.net(); }
     else { soundRef.current?.save(); }
     const finalShots = [...shots, lastResult];
@@ -312,7 +337,7 @@ export default function PenaltyPage() {
           const u = { ...prev, totalGames: prev.totalGames + 1, totalWins: prev.totalWins + (won ? 1 : 0), totalGoals: prev.totalGoals + ns, totalShots: prev.totalShots + totalRounds, currentStreak: won ? prev.currentStreak + 1 : 0, bestStreak: won ? Math.max(prev.bestStreak, prev.currentStreak + 1) : prev.bestStreak };
           saveStats(u); return u;
         });
-        // Fire-and-forget save to 0G
+        emitZeroGEvent({ type: 'storage-upload', message: `Saving shootout result to 0G Storage…` });
         fetch('/api/storage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -325,13 +350,17 @@ export default function PenaltyPage() {
             won,
             timestamp: new Date().toISOString(),
           }),
-        }).catch(() => {});
+        }).then((res) => res?.json()).then((data) => {
+          if (data?.rootHash) emitZeroGEvent({ type: 'storage-success', message: 'Shootout result anchored on 0G', hash: data.rootHash });
+        }).catch(() => {
+          emitZeroGEvent({ type: 'storage-error', message: 'Shootout save fallback — demo hash' });
+        });
         setPhase('done');
       } else { setRound(r => r + 1); setPhase('aiming'); setLastResult(null); }
     }, 2200);
   }, [lastResult, round, shots, totalRounds, selectedAgent]);
 
-  const reset = () => { setRound(1); setPhase('select'); setShots([]); setLastResult(null); shootAnimRef.current = null; setPower(0); };
+  const reset = () => { setRound(1); setPhase('intro'); setShots([]); setLastResult(null); shootAnimRef.current = null; setPower(0); };
 
   // --- MAIN RENDER LOOP ---
   useEffect(() => {
@@ -349,6 +378,16 @@ export default function PenaltyPage() {
       if (W < 10 || H < 10) { animRef.current = requestAnimationFrame(render); return; }
 
       ctx.clearRect(0, 0, W, H);
+
+      // Camera shake
+      const shake = shakeRef.current;
+      if (shake.intensity > 0.5) {
+        const sx = (Math.random() - 0.5) * shake.intensity;
+        const sy = (Math.random() - 0.5) * shake.intensity;
+        ctx.save();
+        ctx.translate(sx, sy);
+        shake.intensity *= shake.decay;
+      }
 
       // ===== SKY =====
       const sky = ctx.createLinearGradient(0, 0, 0, H * 0.32);
@@ -485,6 +524,20 @@ export default function PenaltyPage() {
       // Net background (darker)
       ctx.fillStyle = 'rgba(0,0,0,0.2)';
       ctx.fillRect(goalLX, goalTopY, goalRX - goalLX, goalH);
+
+      // Net bulge on goal
+      if (phase === 'result' && lastResult?.scored) {
+        const bulgeT = Math.min(1, (f % 120) / 40);
+        const bulgeAmt = Math.sin(bulgeT * Math.PI) * W * 0.025;
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
+        for (let ny = goalTopY + 8; ny < goalBotY; ny += 12) {
+          ctx.beginPath();
+          ctx.moveTo(goalLX, ny);
+          ctx.quadraticCurveTo((goalLX + goalRX) / 2, ny - bulgeAmt, goalRX, ny);
+          ctx.stroke();
+        }
+      }
 
       // Goal posts - thick white with shadow
       ctx.fillStyle = '#fff';
@@ -657,6 +710,9 @@ export default function PenaltyPage() {
       ctx.fillStyle = vig;
       ctx.fillRect(0, 0, W, H);
 
+      // End camera shake
+      if (shakeRef.current.intensity > 0.5) ctx.restore();
+
       animRef.current = requestAnimationFrame(render);
     }
     render();
@@ -673,7 +729,7 @@ export default function PenaltyPage() {
         <div className="font-pixel text-[10px] text-[var(--neon-cyan)] tracking-widest">PENALTY SHOOTOUT</div>
         <div className="flex gap-2">
           <button onClick={() => setShowStats(!showStats)} className="font-pixel text-[9px] px-3 py-1.5 border border-[var(--neon-yellow)]/40 rounded-sm text-[var(--neon-yellow)] hover:bg-[var(--neon-yellow)]/15 transition-colors tracking-widest">STATS</button>
-          {phase !== 'select' && (
+          {phase !== 'intro' && (
             <button onClick={reset} className="font-pixel text-[9px] px-3 py-1.5 border border-red-500/40 rounded-sm text-red-300 hover:bg-red-500/15 transition-colors tracking-widest">
               RESET
             </button>
@@ -682,7 +738,7 @@ export default function PenaltyPage() {
       </div>
 
       {/* Score HUD */}
-      {phase !== 'select' && (
+      {phase !== 'intro' && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6 bg-black/50 backdrop-blur-sm rounded-full px-6 py-2 border border-white/10">
           <div className="text-center">
             <div className="font-pixel text-[8px] text-[var(--text-muted)]">YOU</div>
@@ -712,35 +768,30 @@ export default function PenaltyPage() {
 
       {/* ===== OVERLAYS ===== */}
 
-      {/* Agent select */}
+      {/* Press Start intro */}
       <AnimatePresence>
-        {phase === 'select' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="text-center max-w-lg px-6">
-              <h1 className="font-pixel text-2xl md:text-4xl text-[var(--neon-green)] mb-2" style={{ textShadow: '0 0 10px rgba(0,255,136,0.3)' }}>PENALTY SHOOTOUT</h1>
-              <p className="font-retro text-sm text-[var(--text-muted)] mb-6">Choose direction, set power, pick height — 5 shots to beat the AI keeper!</p>
-              <p className="font-pixel text-[9px] text-[var(--neon-cyan)] mb-3 tracking-wider">SELECT OPPONENT GOALKEEPER</p>
-              <div className="grid grid-cols-2 gap-3 mb-6 max-w-md mx-auto">
-                {AGENTS.map(agent => {
-                  const s = AGENT_STYLES[agent.id];
-                  return (
-                    <motion.button key={agent.id} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                      onClick={() => setSelectedAgent(agent)}
-                      className={`p-3 border rounded-lg text-left transition-all ${selectedAgent.id === agent.id ? 'border-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 shadow-[0_0_15px_rgba(0,229,255,0.15)]' : 'border-white/10 bg-white/5 hover:border-white/25'}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{agent.avatar}</span>
-                        <span className="font-pixel text-[9px]" style={{ color: s?.color }}>{agent.displayName.toUpperCase()}</span>
-                      </div>
-                      <p className="font-retro text-[11px] text-[var(--text-muted)] leading-tight">
-                        {AGENT_STYLES[agent.id]?.tagline}
-                      </p>
-                    </motion.button>
-                  );
-                })}
-              </div>
-              <motion.button whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0,255,136,0.4)' }} whileTap={{ scale: 0.95 }} onClick={startGame} className="btn-neon btn-lock font-pixel text-sm px-10 py-4">KICK OFF</motion.button>
+        {phase === 'intro' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center bg-black/85 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="text-center px-6">
+              <motion.h1
+                className="font-pixel text-xl sm:text-3xl md:text-5xl text-[var(--neon-green)] mb-3"
+                style={{ textShadow: '0 0 12px rgba(0,255,136,0.4)' }}
+              >
+                PENALTY SHOOTOUT
+              </motion.h1>
+              <p className="font-retro text-xs sm:text-sm text-[var(--text-muted)] mb-8">
+                5 shots · Aim, power, height — beat the AI keeper!
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={startGame}
+                className="font-pixel text-sm md:text-lg text-[var(--neon-green)] border-2 border-[var(--neon-green)] px-10 py-4 md:px-14 md:py-5 bg-transparent cursor-pointer animate-pulse hover:animate-none hover:bg-[var(--neon-green)]/10 transition-colors"
+              >
+                ▶ PRESS START
+              </motion.button>
               {stats.totalGames > 0 && (
-                <div className="mt-4 font-pixel text-[8px] text-[var(--text-muted)]">
+                <div className="mt-5 font-pixel text-[8px] text-[var(--text-muted)]">
                   {stats.totalWins}W / {stats.totalGames - stats.totalWins}L · STREAK: {stats.currentStreak} · BEST: {stats.bestStreak}
                 </div>
               )}

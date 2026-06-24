@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
+/* Hide scrollbars but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 :root {
   --bg-primary: #0a0e1a;
   --bg-secondary: #111827;
@@ -68,11 +77,15 @@ input[type="number"], input[type="password"], input:not([type]), textarea {
 
 body {
   background: var(--bg-primary);
+  background-image: radial-gradient(140% 90% at 50% -10%, #16224a 0%, #0b1226 45%, #060912 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: 'VT323', monospace;
   font-size: 18px;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
 }
 
 /* CRT Scanlines overlay */
@@ -113,30 +126,42 @@ body {
   font-family: 'VT323', monospace;
 }
 
-/* Neon glow effects */
+/* Neon glow effects — subtle */
 .glow-green {
-  text-shadow: 0 0 6px var(--neon-green), 0 0 12px rgba(0,255,136,0.3);
+  text-shadow: 0 0 6px rgba(0,255,136,0.4), 0 0 14px rgba(0,255,136,0.15);
 }
 
 .glow-cyan {
-  text-shadow: 0 0 6px var(--neon-cyan), 0 0 12px rgba(0,229,255,0.3);
+  text-shadow: 0 0 6px rgba(0,229,255,0.4), 0 0 14px rgba(0,229,255,0.15);
 }
 
 .glow-magenta {
-  text-shadow: 0 0 6px var(--neon-magenta), 0 0 12px rgba(255,0,255,0.3);
+  text-shadow: 0 0 6px rgba(255,0,255,0.4), 0 0 14px rgba(255,0,255,0.15);
 }
 
-/* Card styling */
+/* Card styling — SNES-style with inset shadow depth */
 .card-retro {
-  background: var(--bg-card);
-  border: 1px solid rgba(0, 229, 255, 0.2);
-  border-radius: 4px;
-  transition: all 0.2s;
+  background: linear-gradient(180deg, rgba(19, 35, 63, 0.92) 0%, rgba(13, 24, 48, 0.92) 100%);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(6, 10, 20, 0.8);
+  border-radius: 2px;
+  transition: all 0.25s ease;
+  box-shadow:
+    inset 2px 2px 0 rgba(47, 64, 104, 0.3),
+    inset -1px -1px 0 rgba(6, 10, 20, 0.4),
+    0 4px 0 rgba(4, 6, 14, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .card-retro:hover {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.25);
+  box-shadow:
+    inset 2px 2px 0 rgba(47, 64, 104, 0.35),
+    inset -1px -1px 0 rgba(6, 10, 20, 0.4),
+    0 4px 0 rgba(4, 6, 14, 0.5),
+    0 0 20px rgba(0, 229, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Scrollbar */
@@ -192,7 +217,7 @@ body {
 /* Match ticker — same seamless technique as ad-board */
 .ticker-track {
   display: inline-flex;
-  animation: marquee-loop 120s linear infinite;
+  animation: marquee-loop 200s linear infinite;
 }
 
 .ticker-copy {
@@ -201,46 +226,55 @@ body {
   flex-shrink: 0;
 }
 
-/* Button styles */
+/* Button styles — SNES depth with glow */
 .btn-neon {
   font-family: 'Press Start 2P', monospace;
   font-size: 12px;
   padding: 12px 24px;
   border: 2px solid var(--neon-cyan);
-  background: transparent;
+  background: rgba(0, 245, 255, 0.08);
   color: var(--neon-cyan);
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: all 0.2s;
+  box-shadow: 0 0 16px rgba(0, 245, 255, 0.15), inset 0 0 12px rgba(0, 245, 255, 0.04);
 }
 
 .btn-neon:hover {
-  background: var(--neon-cyan);
-  color: var(--bg-primary);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+  background: rgba(0, 245, 255, 0.18);
+  box-shadow: 0 0 24px rgba(0, 245, 255, 0.3), inset 0 0 16px rgba(0, 245, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.btn-neon:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.2);
 }
 
 .btn-neon:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 .btn-neon:disabled:hover {
   background: transparent;
   color: var(--neon-cyan);
   box-shadow: none;
+  transform: none;
 }
 
 .btn-lock {
   border-color: var(--neon-green);
   color: var(--neon-green);
+  background: rgba(0, 255, 136, 0.08);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.15), inset 0 0 12px rgba(0, 255, 136, 0.04);
 }
 
 .btn-lock:hover {
-  background: var(--neon-green);
-  color: var(--bg-primary);
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  background: rgba(0, 255, 136, 0.18);
+  box-shadow: 0 0 24px rgba(0, 255, 136, 0.3), inset 0 0 16px rgba(0, 255, 136, 0.06);
 }
 
 /* Prophet moment */
@@ -252,6 +286,84 @@ body {
 .prophet-card {
   animation: prophet-pulse 2s ease-in-out infinite;
 }
+
+/* Section header accent bar */
+.section-header {
+  position: relative;
+  padding-left: 12px;
+}
+.section-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 80%;
+  background: var(--neon-cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+/* Stat badge — used in player/agent cards */
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gold/green/default stat coloring */
+.stat-gold { color: var(--gold); border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.08); }
+.stat-green { color: var(--neon-green); border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.08); }
+
+/* Hero card — large mode selector cards on landing */
+.card-hero {
+  background: linear-gradient(180deg, rgba(19, 35, 63, 0.95) 0%, rgba(13, 24, 48, 0.95) 100%);
+  backdrop-filter: blur(8px);
+  border: 3px solid rgba(6, 10, 20, 0.8);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  box-shadow:
+    inset 3px 3px 0 rgba(47, 64, 104, 0.3),
+    inset -2px -2px 0 rgba(6, 10, 20, 0.5),
+    0 6px 0 rgba(4, 6, 14, 0.5),
+    0 10px 22px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.card-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+.card-hero:hover {
+  border-color: rgba(0, 245, 255, 0.3);
+  box-shadow:
+    inset 3px 3px 0 rgba(47, 64, 104, 0.35),
+    inset -2px -2px 0 rgba(6, 10, 20, 0.5),
+    0 6px 0 rgba(4, 6, 14, 0.5),
+    0 0 16px rgba(0, 245, 255, 0.15),
+    0 10px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Category badge on cards */
+.badge-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 3px 8px;
+  border: 1px solid;
+  letter-spacing: 1px;
+}
+
 
 /* Outcome badge */
 .outcome-badge {
