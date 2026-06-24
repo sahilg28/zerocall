@@ -39,7 +39,7 @@ export function AnimatedCounter({ value, label, color = 'var(--neon-green)' }: {
         animate={isInView ? { scale: 1 } : {}}
         transition={{ type: 'spring', stiffness: 200 }}
         className="font-pixel text-3xl sm:text-4xl md:text-5xl mb-1.5"
-        style={{ color, textShadow: `0 0 18px ${color}55` }}
+        style={{ color, textShadow: `0 0 8px ${color}33` }}
       >
         {display}
       </motion.div>

@@ -19,8 +19,25 @@ export function PickModal({ match, onClose }: PickModalProps) {
   const [isLocking, setIsLocking] = useState(false);
   const [locked, setLocked] = useState(false);
   const [storageResult, setStorageResult] = useState<{ rootHash?: string; explorerUrl?: string; demo?: boolean } | null>(null);
+  const [lockError, setLockError] = useState<string | null>(null);
 
   if (!match) return null;
+
+  const syncOutcomeToScore = (h: number, a: number) => {
+    if (h > a) setOutcome('home');
+    else if (a > h) setOutcome('away');
+    else setOutcome('draw');
+  };
+
+  const updateHomeScore = (v: number) => {
+    setHomeScore(v);
+    syncOutcomeToScore(v, awayScore);
+  };
+
+  const updateAwayScore = (v: number) => {
+    setAwayScore(v);
+    syncOutcomeToScore(homeScore, v);
+  };
 
   const handleLock = async () => {
     if (!outcome) return;
@@ -49,8 +66,9 @@ export function PickModal({ match, onClose }: PickModalProps) {
       storageRef = data.rootHash || '';
       explorerUrl = data.explorerUrl || '';
       isDemo = !!data.demo;
-    } catch {
+    } catch (err) {
       isDemo = true;
+      setLockError(err instanceof Error ? err.message : 'Storage unavailable');
     }
 
     const pick: Pick = {
@@ -198,7 +216,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                       <span className="font-pixel text-[9px]">{match.homeTeam.slice(0, 3).toUpperCase()}</span>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => setHomeScore(Math.max(0, homeScore - 1))}
+                          onClick={() => updateHomeScore(Math.max(0, homeScore - 1))}
                           className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
                         >
                           -
@@ -207,7 +225,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                           {homeScore}
                         </span>
                         <button
-                          onClick={() => setHomeScore(Math.min(9, homeScore + 1))}
+                          onClick={() => updateHomeScore(Math.min(9, homeScore + 1))}
                           className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
                         >
                           +
@@ -218,7 +236,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => setAwayScore(Math.max(0, awayScore - 1))}
+                          onClick={() => updateAwayScore(Math.max(0, awayScore - 1))}
                           className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
                         >
                           -
@@ -227,7 +245,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                           {awayScore}
                         </span>
                         <button
-                          onClick={() => setAwayScore(Math.min(9, awayScore + 1))}
+                          onClick={() => updateAwayScore(Math.min(9, awayScore + 1))}
                           className="w-7 h-7 border border-white/20 text-white/60 hover:border-white/40 rounded-sm font-pixel text-xs"
                         >
                           +

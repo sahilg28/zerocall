@@ -22,11 +22,9 @@ Kickoff: ${match.kickoffTime}.
 Predict the outcome. You MUST respond with ONLY valid JSON, no other text:
 {"outcome": "home" | "draw" | "away", "score": {"home": <number>, "away": <number>}, "oneLineReason": "<max 15 words>"}`;
 
-  const baseUrl = process.env.ZG_SERVICE_URL
-    ? `${process.env.ZG_SERVICE_URL}/v1/proxy`
-    : process.env.ZG_COMPUTE_URL || 'https://api.0g.ai/v1';
+  const baseUrl = process.env.ZG_SERVICE_URL || 'https://router-api.0g.ai/v1';
 
-  const apiKey = process.env.ZG_API_SECRET || process.env.ZG_API_KEY || '';
+  const apiKey = process.env.ZG_API_KEY || process.env.ZG_API_SECRET || '';
 
   try {
     const res = await fetch(`${baseUrl}/chat/completions`, {

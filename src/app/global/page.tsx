@@ -52,10 +52,10 @@ export default function GlobalPage() {
         className="text-center mb-8"
       >
         <h1 className="font-pixel text-xl text-[var(--neon-green)] glow-green mb-2">
-          GLOBAL BOARD
+          GLOBAL ARENA
         </h1>
         <p className="font-retro text-lg text-[var(--text-muted)]">
-          Beat the Oracle. Prove your foresight on-chain.
+          Beat the AI. Prove your foresight on-chain.
         </p>
       </motion.div>
 

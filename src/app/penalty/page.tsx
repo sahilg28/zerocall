@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AGENTS } from '@/lib/types';
+import { isMuted as _isMuted } from '@/lib/store';
 
 type Direction = 'left' | 'center-left' | 'center' | 'center-right' | 'right';
 type Height = 'low' | 'mid' | 'high';
@@ -114,11 +115,6 @@ function loadStats(): GameStats {
 
 function saveStats(stats: GameStats) {
   if (typeof window !== 'undefined') localStorage.setItem('zerocall_penalty_stats', JSON.stringify(stats));
-}
-
-function _isMuted(): boolean {
-  if (typeof window === 'undefined') return false;
-  try { return localStorage.getItem('zerocall_muted') === '1'; } catch { return false; }
 }
 
 class SoundFX {
@@ -721,7 +717,7 @@ export default function PenaltyPage() {
         {phase === 'select' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-md">
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="text-center max-w-lg px-6">
-              <h1 className="font-pixel text-2xl md:text-4xl text-[var(--neon-green)] mb-2" style={{ textShadow: '0 0 40px rgba(0,255,136,0.4)' }}>PENALTY SHOOTOUT</h1>
+              <h1 className="font-pixel text-2xl md:text-4xl text-[var(--neon-green)] mb-2" style={{ textShadow: '0 0 10px rgba(0,255,136,0.3)' }}>PENALTY SHOOTOUT</h1>
               <p className="font-retro text-sm text-[var(--text-muted)] mb-6">Choose direction, set power, pick height — 5 shots to beat the AI keeper!</p>
               <p className="font-pixel text-[9px] text-[var(--neon-cyan)] mb-3 tracking-wider">SELECT OPPONENT GOALKEEPER</p>
               <div className="grid grid-cols-2 gap-3 mb-6 max-w-md mx-auto">
@@ -758,7 +754,7 @@ export default function PenaltyPage() {
         {phase === 'ready' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
             <motion.div initial={{ scale: 4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.3, opacity: 0 }} transition={{ type: 'spring', stiffness: 150 }}
-              className="font-pixel text-4xl md:text-6xl text-white" style={{ textShadow: '0 0 50px rgba(255,255,255,0.5)' }}>
+              className="font-pixel text-4xl md:text-6xl text-white" style={{ textShadow: '0 0 12px rgba(255,255,255,0.3)' }}>
               ROUND {round}
             </motion.div>
           </motion.div>
@@ -769,7 +765,7 @@ export default function PenaltyPage() {
       <AnimatePresence>
         {phase === 'aiming' && (
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center px-4">
-            <p className="font-pixel text-xs text-[var(--neon-green)] mb-3 tracking-wider" style={{ textShadow: '0 0 15px rgba(0,255,136,0.4)' }}>AIM YOUR SHOT</p>
+            <p className="font-pixel text-xs text-[var(--neon-green)] mb-3 tracking-wider" style={{ textShadow: '0 0 6px rgba(0,255,136,0.3)' }}>AIM YOUR SHOT</p>
             <div className="flex gap-2 md:gap-3">
               {(['left', 'center-left', 'center', 'center-right', 'right'] as Direction[]).map(dir => (
                 <motion.button key={dir} whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.92 }} onClick={() => selectDirection(dir)}
@@ -786,7 +782,7 @@ export default function PenaltyPage() {
       <AnimatePresence>
         {phase === 'power' && (
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center px-4">
-            <p className="font-pixel text-xs text-[var(--neon-yellow)] mb-3" style={{ textShadow: '0 0 15px rgba(255,170,0,0.4)' }}>SET POWER</p>
+            <p className="font-pixel text-xs text-[var(--neon-yellow)] mb-3" style={{ textShadow: '0 0 6px rgba(255,170,0,0.3)' }}>SET POWER</p>
             <div className="w-72 h-10 bg-black/70 border border-white/20 rounded-full overflow-hidden backdrop-blur-sm relative shadow-lg">
               <motion.div className="h-full rounded-full transition-all duration-[20ms]" style={{
                 width: `${power}%`,
@@ -808,7 +804,7 @@ export default function PenaltyPage() {
       <AnimatePresence>
         {phase === 'height-select' && (
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-8 left-0 right-0 z-30 flex flex-col items-center px-4">
-            <p className="font-pixel text-xs text-[var(--neon-magenta)] mb-3" style={{ textShadow: '0 0 15px rgba(255,68,136,0.4)' }}>CHOOSE HEIGHT</p>
+            <p className="font-pixel text-xs text-[var(--neon-magenta)] mb-3" style={{ textShadow: '0 0 6px rgba(255,68,136,0.3)' }}>CHOOSE HEIGHT</p>
             <div className="flex gap-3">
               {(['high', 'mid', 'low'] as Height[]).map(h => (
                 <motion.button key={h} whileHover={{ scale: 1.08, y: -3 }} whileTap={{ scale: 0.92 }} onClick={() => selectHeight(h)}
@@ -829,7 +825,7 @@ export default function PenaltyPage() {
               {scored >= 3 ? (
                 <>
                   <motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 180, delay: 0.15 }} className="text-7xl mb-3">🏆</motion.div>
-                  <h2 className="font-pixel text-3xl text-[var(--neon-green)] mb-1" style={{ textShadow: '0 0 30px rgba(0,255,136,0.5)' }}>
+                  <h2 className="font-pixel text-3xl text-[var(--neon-green)] mb-1" style={{ textShadow: '0 0 8px rgba(0,255,136,0.3)' }}>
                     {scored === 5 ? 'PERFECT!' : scored === 4 ? 'VICTORY!' : 'YOU WIN!'}
                   </h2>
                 </>
@@ -1069,35 +1065,6 @@ function drawKicker(ctx: CanvasRenderingContext2D, x: number, y: number, W: numb
   ctx.fill();
 
   ctx.restore();
-}
-
-function drawSidePlayer(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, shirt: string, shorts: string) {
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.beginPath();
-  ctx.ellipse(x, y + s * 0.3, s * 1.2, s * 0.25, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Legs
-  ctx.fillStyle = '#fcd5a8';
-  ctx.fillRect(x - s * 0.3, y - s * 0.8, s * 0.25, s * 1);
-  ctx.fillRect(x + s * 0.05, y - s * 0.8, s * 0.25, s * 1);
-
-  // Shorts
-  ctx.fillStyle = shorts;
-  ctx.fillRect(x - s * 0.45, y - s * 1.3, s * 0.9, s * 0.6);
-
-  // Jersey
-  ctx.fillStyle = shirt;
-  ctx.beginPath();
-  ctx.roundRect(x - s * 0.5, y - s * 2.5, s * 1, s * 1.4, 2);
-  ctx.fill();
-
-  // Head
-  ctx.fillStyle = '#fcd5a8';
-  ctx.beginPath();
-  ctx.arc(x, y - s * 3, s * 0.5, 0, Math.PI * 2);
-  ctx.fill();
 }
 
 function drawBall(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {

@@ -63,7 +63,7 @@ export function ProphetMoment({ show, pick, match, predictor, onClose }: Prophet
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: 'spring' }}
               className="font-pixel text-2xl text-[var(--gold)] mb-2"
-              style={{ textShadow: '0 0 20px #ffd700, 0 0 40px #ffd700' }}
+              style={{ textShadow: '0 0 8px #ffd700, 0 0 16px rgba(255,215,0,0.3)' }}
             >
               PROPHET
             </motion.h2>

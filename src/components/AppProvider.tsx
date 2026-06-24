@@ -1,24 +1,61 @@
 'use client';
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { AppContext, loadPicks, savePicks, getAllPredictors } from '@/lib/store';
+import { AppContext, loadPicks, savePicks, loadWallet, saveWallet, getAllPredictors } from '@/lib/store';
 import { Match, Pick, AGENT_IDS } from '@/lib/types';
 import { generateAllAgentPicks } from '@/lib/agents';
-import matchesData from '@/data/matches.json';
+import fallbackMatches from '@/data/matches.json';
+
+const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [matches, setMatches] = useState<Match[]>(fallbackMatches as Match[]);
   const [picks, setPicks] = useState<Pick[]>([]);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  const matches = matchesData as Match[];
-
   useEffect(() => {
     setMounted(true);
-    const userPicks = loadPicks();
-    const agentPicks = generateAllAgentPicks(matches);
-    setPicks([...userPicks, ...agentPicks]);
+    const savedWallet = loadWallet();
+    if (savedWallet) setWalletAddress(savedWallet);
+
+    async function fetchMatches() {
+      try {
+        const res = await fetch('/api/matches');
+        if (!res.ok) throw new Error('API error');
+        const live: Match[] = await res.json();
+        if (Array.isArray(live) && live.length > 0) {
+          setMatches(live);
+          return live;
+        }
+      } catch {
+        /* fall through to fallback */
+      }
+      return fallbackMatches as Match[];
+    }
+
+    fetchMatches().then((m) => {
+      const userPicks = loadPicks();
+      const agentPicks = generateAllAgentPicks(m);
+      setPicks([...userPicks, ...agentPicks]);
+    });
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/matches');
+        if (!res.ok) return;
+        const live: Match[] = await res.json();
+        if (Array.isArray(live) && live.length > 0) setMatches(live);
+      } catch { /* ignore */ }
+    }, REFRESH_INTERVAL);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (mounted) saveWallet(walletAddress);
+  }, [walletAddress, mounted]);
 
   const addPick = useCallback((pick: Pick) => {
     setPicks((prev) => {

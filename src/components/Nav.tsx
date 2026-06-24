@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, isMuted as readMuted, setMuted as writeMuted } from '@/lib/store';
+import { getChiptune } from '@/lib/chiptune';
 
 export function Nav() {
   const pathname = usePathname();
@@ -13,6 +14,7 @@ export function Nav() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showConnect, setShowConnect] = useState(false);
   const [guestName, setGuestName] = useState('');
+  const [walletError, setWalletError] = useState<string | null>(null);
 
   const isGuest = walletAddress?.startsWith('guest:');
   const displayName = isGuest
@@ -32,12 +34,24 @@ export function Nav() {
   const [muted, setMutedState] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
 
-  useEffect(() => { setMutedState(readMuted()); }, []);
+  useEffect(() => {
+    setMutedState(readMuted());
+    const onMuteChange = (e: Event) => setMutedState((e as CustomEvent<boolean>).detail);
+    window.addEventListener('zerocall-mute', onMuteChange);
+    return () => window.removeEventListener('zerocall-mute', onMuteChange);
+  }, []);
 
   const toggleMute = () => {
     const next = !muted;
     setMutedState(next);
     writeMuted(next);
+    // This click is a user gesture, so starting/stopping the shared chiptune
+    // here works even if the AudioContext was never touched before. Once
+    // started, it's a module-level singleton that keeps playing across
+    // every route change — not tied to this Nav instance.
+    const t = getChiptune();
+    if (next) t.stop();
+    else t.start();
   };
 
   const links = [
@@ -76,7 +90,11 @@ export function Nav() {
             }
           }
         }
-      } catch {}
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Wallet connection failed';
+        setWalletError(msg);
+        setTimeout(() => setWalletError(null), 4000);
+      }
     } else {
       window.open('https://metamask.io', '_blank');
     }
@@ -268,6 +286,12 @@ export function Nav() {
                   </button>
                 </form>
               </div>
+
+              {walletError && (
+                <p className="font-pixel text-[8px] text-red-400 text-center mt-3 tracking-widest">
+                  {walletError}
+                </p>
+              )}
 
               <p className="font-pixel text-[7px] text-[var(--text-muted)] text-center mt-4 tracking-widest">
                 BUILT ON 0G · GALILEO TESTNET

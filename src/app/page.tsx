@@ -7,8 +7,6 @@ import { useApp } from '@/lib/store';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { useMemo, useState } from 'react';
-import { buildLeaderboard } from '@/lib/scoring';
-import { getAllPredictors } from '@/lib/store';
 import { getFlagUrl } from '@/lib/countries';
 
 const PressStart = dynamic(() => import('@/components/PressStart'), { ssr: false });
@@ -58,11 +56,6 @@ export default function LandingPage() {
     return upcoming[0];
   }, [matches]);
 
-  const leadingAgent = useMemo(() => {
-    const predictors = getAllPredictors(walletAddress).filter((p) => p.type === 'agent');
-    const board = buildLeaderboard(predictors, picks, matches);
-    return board[0];
-  }, [matches, picks, walletAddress]);
 
   return (
     <>
@@ -89,7 +82,7 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-pixel text-2xl sm:text-3xl md:text-4xl text-[var(--neon-green)] mb-8 tracking-wider"
-            style={{ textShadow: '0 0 20px rgba(0,255,136,0.4)' }}
+            style={{ textShadow: '0 0 8px rgba(0,255,136,0.3)' }}
           >
             ZEROCALL
           </motion.h1>
@@ -132,76 +125,34 @@ export default function LandingPage() {
             <AnimatedCounter value={stats.totalPicks} label="PREDICTIONS" color="var(--neon-magenta)" />
           </motion.div>
 
-          {/* Hero row: GLOBAL big + agent leader */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 w-full mb-3">
-            {/* GLOBAL hero card — spans 2 cols on lg */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="lg:col-span-2"
-            >
-              <Link href="/global" className="block group">
-                <div
-                  className="card-retro p-6 h-full relative overflow-hidden cursor-pointer transition-all hover:border-[var(--neon-green)]!"
-                  style={{ borderColor: 'rgba(0,255,136,0.4)' }}
-                >
-                  {/* Pulse accent */}
-                  <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[var(--neon-green)]/10 blur-2xl group-hover:bg-[var(--neon-green)]/20 transition-colors" />
-                  <div className="relative">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-4xl">🏆</span>
-                      <h2 className="font-pixel text-lg sm:text-xl text-[var(--neon-green)] tracking-wider">GLOBAL ARENA</h2>
-                    </div>
-                    <p className="font-retro text-base sm:text-lg text-[var(--text-muted)] mb-4 max-w-md">
-                      Predict every World Cup match before kickoff. Climb the global leaderboard. Every pick locks on 0G.
-                    </p>
-                    <span className="inline-flex items-center gap-2 font-pixel text-[10px] text-[var(--neon-green)] group-hover:gap-3 transition-all">
-                      PREDICT NOW <span>→</span>
-                    </span>
+          {/* GLOBAL ARENA hero card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="w-full mb-3"
+          >
+            <Link href="/global" className="block group">
+              <div
+                className="card-retro p-6 relative overflow-hidden cursor-pointer transition-all hover:border-[var(--neon-green)]!"
+                style={{ borderColor: 'rgba(0,255,136,0.4)' }}
+              >
+                <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[var(--neon-green)]/10 blur-2xl group-hover:bg-[var(--neon-green)]/20 transition-colors" />
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-4xl">🏆</span>
+                    <h2 className="font-pixel text-lg sm:text-xl text-[var(--neon-green)] tracking-wider">GLOBAL ARENA</h2>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-
-            {/* Leading agent card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Link href="/agents" className="block group h-full">
-                <div className="card-retro p-5 h-full cursor-pointer transition-all hover:border-[var(--neon-magenta)]!"
-                  style={{ borderColor: 'rgba(255,0,255,0.3)' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-magenta)] animate-pulse" />
-                    <h3 className="font-pixel text-[8px] text-[var(--neon-magenta)] tracking-widest">AGENT LEADER</h3>
-                  </div>
-                  {leadingAgent ? (
-                    <>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-3xl">{(leadingAgent.predictor as { avatar?: string }).avatar ?? '🤖'}</span>
-                        <div>
-                          <p className="font-pixel text-sm text-white">{leadingAgent.predictor.displayName.toUpperCase()}</p>
-                          <p className="font-pixel text-[8px] text-[var(--neon-magenta)] mt-1">{leadingAgent.points} PTS</p>
-                        </div>
-                      </div>
-                      <p className="font-retro text-sm text-[var(--text-muted)]">
-                        {leadingAgent.correctOutcomes}/{leadingAgent.totalPicks} correct · {leadingAgent.exactScores} exact scores.
-                      </p>
-                    </>
-                  ) : (
-                    <p className="font-retro text-sm text-[var(--text-muted)]">
-                      Six AI agents predict every fixture. Watch them duel.
-                    </p>
-                  )}
-                  <span className="inline-flex items-center gap-1 font-pixel text-[9px] text-[var(--neon-magenta)] mt-3 group-hover:gap-2 transition-all">
-                    SEE STANDINGS →
+                  <p className="font-retro text-base sm:text-lg text-[var(--text-muted)] mb-4 max-w-md">
+                    Predict every World Cup match before kickoff. Climb the global leaderboard. Every pick locks on 0G.
+                  </p>
+                  <span className="inline-flex items-center gap-2 font-pixel text-[10px] text-[var(--neon-green)] group-hover:gap-3 transition-all">
+                    PREDICT NOW <span>→</span>
                   </span>
                 </div>
-              </Link>
-            </motion.div>
-          </div>
+              </div>
+            </Link>
+          </motion.div>
 
           {/* Side modes — 3 small */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mb-8">

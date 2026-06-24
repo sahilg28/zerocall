@@ -24,7 +24,7 @@ export default function LeaderboardPage() {
       >
         <h1
           className="font-pixel text-2xl sm:text-3xl text-[var(--neon-cyan)]"
-          style={{ textShadow: '0 0 20px rgba(0,229,255,0.4)' }}
+          style={{ textShadow: '0 0 8px rgba(0,229,255,0.3)' }}
         >
           GLOBAL LEADERBOARD
         </h1>

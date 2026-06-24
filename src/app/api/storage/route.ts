@@ -14,11 +14,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const pickData = {
+      ...body,
       app: 'ZeroCall',
       version: '1.0',
       type: body.type || 'prediction',
       timestamp: body.timestamp || new Date().toISOString(),
-      ...body,
     };
 
     const result = await uploadPickToStorage(pickData);
