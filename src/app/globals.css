@@ -34,6 +34,38 @@ a, button, [role="button"], input[type="submit"], select, label, summary {
   cursor: inherit !important;
 }
 
+/* Functional inputs keep a real text caret — the novelty ball cursor on a
+   text field is pure friction. */
+input[type="text"], input[type="search"], input[type="email"],
+input[type="number"], input[type="password"], input:not([type]), textarea {
+  cursor: text !important;
+}
+
+:where(a, button, [role="button"], select, summary, label):disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed !important;
+}
+
+/* Respect users who ask for less motion: kill the flicker, glitch, marquees,
+   and pulses, and collapse transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .crt-flicker,
+  .ad-board-track,
+  .ticker-track,
+  .press-start-btn,
+  .prophet-card,
+  .glitch::before,
+  .glitch::after {
+    animation: none !important;
+  }
+}
+
 body {
   background: var(--bg-primary);
   color: var(--text-primary);

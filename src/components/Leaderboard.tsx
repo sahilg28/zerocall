@@ -18,7 +18,8 @@ const RANK_STYLES = [
 export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: LeaderboardProps) {
   return (
     <div className="card-retro p-4">
-      <h3 className="font-pixel text-xs text-[var(--neon-cyan)] mb-4 glow-cyan">{title}</h3>
+      <h3 className="font-pixel text-xs text-[var(--neon-cyan)] mb-1 glow-cyan">{title}</h3>
+      <p className="font-retro text-sm text-[var(--text-muted)] mb-4">Your calls vs the six AI agents</p>
 
       <div className="space-y-1">
         {/* Header */}
@@ -61,7 +62,7 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
                   {entry.predictor.displayName}
                 </span>
                 <span
-                  className={`font-pixel text-[7px] tracking-widest px-1.5 py-0.5 rounded-sm flex-shrink-0 ${
+                  className={`font-pixel text-[8px] tracking-widest px-1.5 py-0.5 rounded-sm flex-shrink-0 ${
                     entry.predictor.type === 'agent'
                       ? 'bg-[var(--neon-magenta)]/15 text-[var(--neon-magenta)]'
                       : 'bg-[var(--neon-green)]/15 text-[var(--neon-green)]'
@@ -90,9 +91,9 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
       </div>
 
       <div className="mt-3 pt-2 border-t border-white/10 flex flex-wrap gap-x-4 gap-y-1 text-[var(--text-muted)]">
-        <span className="font-pixel text-[7px]">0G PTS = +3 OUTCOME · +2 EXACT</span>
-        <span className="font-pixel text-[7px]">✓ = CORRECT</span>
-        <span className="font-pixel text-[7px]">⭐ = EXACT SCORE</span>
+        <span className="font-pixel text-[8px]">0G PTS = +3 OUTCOME · +2 EXACT</span>
+        <span className="font-pixel text-[8px]">✓ = CORRECT</span>
+        <span className="font-pixel text-[8px]">⭐ = EXACT SCORE</span>
       </div>
     </div>
   );

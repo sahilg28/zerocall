@@ -175,7 +175,7 @@ export default function PressStart({ onStart }: PressStartProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
             transition={{ delay: 1.5 }}
-            className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-[3] font-pixel text-[7px] md:text-[9px] text-[var(--text-muted)] tracking-widest"
+            className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-[3] font-pixel text-[8px] md:text-[9px] text-[var(--text-muted)] tracking-widest"
           >
             POWERED BY 0G
           </motion.p>

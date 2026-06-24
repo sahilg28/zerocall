@@ -20,8 +20,20 @@ export function PickModal({ match, onClose }: PickModalProps) {
   const [locked, setLocked] = useState(false);
   const [storageResult, setStorageResult] = useState<{ rootHash?: string; explorerUrl?: string; demo?: boolean } | null>(null);
   const [lockError, setLockError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   if (!match) return null;
+
+  const copyHash = async () => {
+    if (!storageResult?.rootHash) return;
+    try {
+      await navigator.clipboard.writeText(storageResult.rootHash);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  };
 
   const syncOutcomeToScore = (h: number, a: number) => {
     if (h > a) setOutcome('home');
@@ -85,8 +97,8 @@ export function PickModal({ match, onClose }: PickModalProps) {
     setStorageResult({ rootHash: storageRef, explorerUrl, demo: isDemo });
     setLocked(true);
     setIsLocking(false);
-
-    setTimeout(onClose, 2400);
+    // Receipt stays up until the user dismisses it — the proof is the payoff,
+    // so we never auto-close and yank it away.
   };
 
   return (
@@ -122,30 +134,54 @@ export function PickModal({ match, onClose }: PickModalProps) {
               <h3 className="font-pixel text-sm text-[var(--neon-green)] glow-green mb-3">
                 LOCKED ON 0G
               </h3>
-              <div className="space-y-2">
-                <p className="text-[var(--text-muted)] text-sm">
+              <div className="space-y-3">
+                <p className="font-retro text-base text-[var(--text-muted)]">
                   Sealed on 0G Storage. No edits after kickoff.
                 </p>
                 {storageResult?.demo && (
-                  <p className="font-pixel text-[8px] text-[var(--neon-yellow)] tracking-widest">
-                    ⚠ DEMO HASH · CONFIGURE PRIVATE_KEY FOR REAL UPLOAD
+                  <p className="font-pixel text-[9px] text-[var(--neon-yellow)] tracking-widest leading-relaxed px-2">
+                    ⚠ DEMO HASH — set PRIVATE_KEY to anchor for real
                   </p>
                 )}
+
                 {storageResult?.rootHash && (
-                  <p className="font-pixel text-[8px] text-[var(--neon-cyan)] break-all px-2">
-                    {storageResult.rootHash.slice(0, 12)}…{storageResult.rootHash.slice(-10)}
-                  </p>
+                  <div className="rounded-sm border border-[var(--neon-cyan)]/30 bg-[var(--bg-secondary)] p-3 text-left">
+                    <div className="font-pixel text-[8px] text-[var(--text-muted)] tracking-widest mb-1">
+                      STORAGE ROOT HASH
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="font-pixel text-[10px] text-[var(--neon-cyan)] break-all flex-1">
+                        {storageResult.rootHash.slice(0, 14)}…{storageResult.rootHash.slice(-12)}
+                      </code>
+                      <button
+                        onClick={copyHash}
+                        aria-label="Copy storage hash"
+                        className="font-pixel text-[8px] tracking-widest px-2 py-1 rounded-sm border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/15 transition-colors shrink-0"
+                      >
+                        {copied ? '✓ COPIED' : 'COPY'}
+                      </button>
+                    </div>
+                  </div>
                 )}
-                {storageResult?.explorerUrl && (
-                  <a
-                    href={storageResult.explorerUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block font-pixel text-[9px] text-[var(--neon-cyan)] hover:underline mt-1"
+
+                <div className="flex flex-col gap-2 pt-1">
+                  {storageResult?.explorerUrl && (
+                    <a
+                      href={storageResult.explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-neon w-full flex items-center justify-center gap-2 text-[10px]!"
+                    >
+                      ⛓ VIEW ON 0G EXPLORER
+                    </a>
+                  )}
+                  <button
+                    onClick={onClose}
+                    className="font-pixel text-[10px] tracking-widest text-[var(--text-muted)] hover:text-white py-2 transition-colors"
                   >
-                    ⛓ VIEW ON 0G EXPLORER
-                  </a>
-                )}
+                    DONE ✕
+                  </button>
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -154,6 +190,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                 <h3 className="font-pixel text-xs text-[var(--neon-cyan)]">MAKE YOUR CALL</h3>
                 <button
                   onClick={onClose}
+                  aria-label="Close"
                   className="font-pixel text-[10px] text-[var(--text-muted)] hover:text-white"
                 >
                   ✕

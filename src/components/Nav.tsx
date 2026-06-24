@@ -58,7 +58,7 @@ export function Nav() {
     { href: '/', label: 'HOME' },
     { href: '/global', label: 'PREDICT' },
     { href: '/agents', label: 'AGENTS' },
-    { href: '/penalty', label: 'PSG' },
+    { href: '/penalty', label: 'PENALTY' },
     { href: '/leaderboard', label: 'LEADERBOARD' },
   ];
 
@@ -178,7 +178,7 @@ export function Nav() {
                     onMouseLeave={() => setShowWalletMenu(false)}
                     className="absolute right-0 mt-2 w-56 card-retro p-3 z-50"
                   >
-                    <div className="font-pixel text-[7px] text-[var(--text-muted)] tracking-widest mb-1">
+                    <div className="font-pixel text-[8px] text-[var(--text-muted)] tracking-widest mb-1">
                       {isGuest ? 'GUEST SESSION' : 'WALLET'}
                     </div>
                     <div className="font-pixel text-[10px] text-white break-all mb-3">
@@ -199,6 +199,8 @@ export function Nav() {
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
               className="md:hidden font-pixel text-lg text-[var(--neon-cyan)]"
+              aria-label={showMobileMenu ? 'Close menu' : 'Open menu'}
+              aria-expanded={showMobileMenu}
             >
               {showMobileMenu ? '✕' : '☰'}
             </button>
@@ -254,7 +256,7 @@ export function Nav() {
             >
               <div className="flex justify-between items-center mb-5">
                 <h2 className="font-pixel text-xs text-[var(--neon-cyan)]">JOIN THE ARENA</h2>
-                <button onClick={() => setShowConnect(false)} className="font-pixel text-xs text-[var(--text-muted)] hover:text-white">✕</button>
+                <button onClick={() => setShowConnect(false)} aria-label="Close" className="font-pixel text-xs text-[var(--text-muted)] hover:text-white">✕</button>
               </div>
 
               {/* Wallet path */}
@@ -293,7 +295,7 @@ export function Nav() {
                 </p>
               )}
 
-              <p className="font-pixel text-[7px] text-[var(--text-muted)] text-center mt-4 tracking-widest">
+              <p className="font-pixel text-[8px] text-[var(--text-muted)] text-center mt-4 tracking-widest">
                 BUILT ON 0G · GALILEO TESTNET
               </p>
             </motion.div>
@@ -322,6 +324,7 @@ export function Nav() {
                 <h2 className="font-pixel text-sm text-[var(--neon-yellow)]">HOW IT WORKS</h2>
                 <button
                   onClick={() => setShowHelp(false)}
+                  aria-label="Close"
                   className="font-pixel text-xs text-[var(--text-muted)] hover:text-white"
                 >
                   ✕
@@ -334,8 +337,8 @@ export function Nav() {
                   { step: '02', icon: '⚽', title: 'PREDICT MATCHES', desc: 'Open PREDICT, scroll the World Cup 2026 fixtures, hit CALL IT. Pick Home / Draw / Away — and the exact score for bonus 0G Points.' },
                   { step: '03', icon: '🔒', title: 'LOCK ON 0G', desc: 'Every pick uploads to 0G Storage with a content hash. A 🔒 0G badge appears on the card — click to view on 0G Explorer.' },
                   { step: '04', icon: '🤖', title: 'BEAT THE AGENTS', desc: 'Six AI agents (Vega, Ronin, Sage, Halo, Knox, Phoenix) predict every fixture via 0G Compute. Each plays in character — see who you can out-call.' },
-                  { step: '05', icon: '🥅', title: 'PLAY THE PSG', desc: 'Penalty Shootout: 5 shots vs an AI keeper. Each agent saves differently — Vega mirrors, Ronin guesses extremes, Sage reads your patterns, Knox parks center. Win a shootout = +10 0G Points.' },
-                  { step: '06', icon: '🏆', title: 'CLIMB THE BOARD', desc: '+3 for correct outcome, +2 for exact score. Open LEADERBOARD — humans and agents ranked together on the same scoreboard.' },
+                  { step: '05', icon: '🥅', title: 'PLAY THE SHOOTOUT', desc: 'Penalty Shootout: 5 shots vs an AI keeper. Each agent saves differently — Vega mirrors, Ronin guesses extremes, Sage reads your patterns, Knox parks center. Win a shootout = +10 0G Points.' },
+                  { step: '06', icon: '🏆', title: 'CLIMB THE BOARD', desc: '+3 for correct outcome, +2 for exact score. Open LEADERBOARD — you and the six AI agents ranked on one board.' },
                 ].map((item) => (
                   <div key={item.step} className="flex gap-3">
                     <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--bg-secondary)] border border-white/10">
@@ -361,7 +364,7 @@ export function Nav() {
               </div>
 
               <div className="mt-4 pt-3 border-t border-white/10 text-center">
-                <p className="font-pixel text-[7px] text-[var(--text-muted)]">
+                <p className="font-pixel text-[8px] text-[var(--text-muted)]">
                   BUILT ON 0G · GALILEO TESTNET · CHAIN ID 16602
                 </p>
               </div>

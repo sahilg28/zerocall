@@ -95,7 +95,7 @@ export function MatchCard({ match, onPick, userPick, index }: MatchCardProps) {
                 href={`https://storagescan-galileo.0g.ai/tx/${userPick.storageRef}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-pixel text-[7px] tracking-widest px-1.5 py-0.5 rounded-sm border border-[var(--neon-green)]/40 text-[var(--neon-green)] bg-[var(--neon-green)]/10 hover:bg-[var(--neon-green)]/20 transition-colors"
+                className="font-pixel text-[8px] tracking-widest px-1.5 py-0.5 rounded-sm border border-[var(--neon-green)]/40 text-[var(--neon-green)] bg-[var(--neon-green)]/10 hover:bg-[var(--neon-green)]/20 transition-colors"
                 title={`Locked on 0G · ${userPick.storageRef.slice(0, 10)}…`}
               >
                 🔒 0G

@@ -40,7 +40,7 @@ export default function ArenaPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}
           transition={{ delay: 0.5 }}
-          className="font-pixel text-[7px] text-[var(--text-muted)] mt-6"
+          className="font-pixel text-[8px] text-[var(--text-muted)] mt-6"
         >
           ALL PICKS STILL STORED ON 0G · SAME SCORING RULES
         </motion.p>

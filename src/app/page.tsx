@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { useApp } from '@/lib/store';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getFlagUrl } from '@/lib/countries';
 
 const PressStart = dynamic(() => import('@/components/PressStart'), { ssr: false });
@@ -39,6 +39,16 @@ export default function LandingPage() {
   const { matches, picks, walletAddress } = useApp();
   const [introDone, setIntroDone] = useState(false);
 
+  // Show the PRESS START gate once per browser session, not on every visit.
+  useEffect(() => {
+    if (sessionStorage.getItem('zerocall_intro_seen') === '1') setIntroDone(true);
+  }, []);
+
+  const finishIntro = () => {
+    sessionStorage.setItem('zerocall_intro_seen', '1');
+    setIntroDone(true);
+  };
+
   const stats = useMemo(() => {
     const finished = matches.filter((m) => m.status === 'final').length;
     const upcoming = matches.filter((m) => m.status === 'upcoming').length;
@@ -59,7 +69,7 @@ export default function LandingPage() {
 
   return (
     <>
-      {!introDone && <PressStart onStart={() => setIntroDone(true)} />}
+      {!introDone && <PressStart onStart={finishIntro} />}
       <div className="relative flex flex-col items-center min-h-[calc(100vh-120px)] px-4 py-8">
         <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
 
@@ -105,7 +115,7 @@ export default function LandingPage() {
                 <TeamMini name={nextMatch.awayTeam} />
               </div>
               {nextMatch.group && (
-                <p className="font-pixel text-[7px] text-[var(--text-muted)] tracking-widest text-center mt-3">
+                <p className="font-pixel text-[8px] text-[var(--text-muted)] tracking-widest text-center mt-3">
                   GROUP {nextMatch.group}
                 </p>
               )}
@@ -144,7 +154,7 @@ export default function LandingPage() {
                     <h2 className="font-pixel text-lg sm:text-xl text-[var(--neon-green)] tracking-wider">GLOBAL ARENA</h2>
                   </div>
                   <p className="font-retro text-base sm:text-lg text-[var(--text-muted)] mb-4 max-w-md">
-                    Predict every World Cup match before kickoff. Climb the global leaderboard. Every pick locks on 0G.
+                    Predict every World Cup match before kickoff. Out-call six AI agents on the board. Every pick locks on 0G.
                   </p>
                   <span className="inline-flex items-center gap-2 font-pixel text-[10px] text-[var(--neon-green)] group-hover:gap-3 transition-all">
                     PREDICT NOW <span>→</span>
@@ -189,7 +199,7 @@ export default function LandingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
             transition={{ delay: 1.2 }}
-            className="font-pixel text-[7px] text-[var(--text-muted)] mt-4 tracking-widest"
+            className="font-pixel text-[8px] text-[var(--text-muted)] mt-4 tracking-widest"
           >
             BUILT ON 0G
           </motion.p>

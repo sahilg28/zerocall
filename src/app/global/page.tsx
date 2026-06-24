@@ -62,6 +62,17 @@ export default function GlobalPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Matches column */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Empty state — no fixtures loaded yet */}
+          {upcomingMatches.length === 0 && finishedMatches.length === 0 && (
+            <div className="card-retro p-10 flex flex-col items-center text-center">
+              <span className="text-5xl mb-4 opacity-80">📡</span>
+              <h2 className="font-pixel text-xs text-[var(--neon-cyan)] mb-2">LOADING FIXTURES…</h2>
+              <p className="font-retro text-base text-[var(--text-muted)] max-w-xs">
+                Pulling the World Cup 2026 schedule. If nothing appears, the match feed is offline — check back shortly.
+              </p>
+            </div>
+          )}
+
           {/* Upcoming */}
           {upcomingMatches.length > 0 && (
             <section>

@@ -685,11 +685,11 @@ export default function PenaltyPage() {
       {phase !== 'select' && (
         <div className="absolute top-10 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6 bg-black/50 backdrop-blur-sm rounded-full px-6 py-2 border border-white/10">
           <div className="text-center">
-            <div className="font-pixel text-[7px] text-[var(--text-muted)]">YOU</div>
+            <div className="font-pixel text-[8px] text-[var(--text-muted)]">YOU</div>
             <div className="font-pixel text-xl text-[var(--neon-green)]">{scored}</div>
           </div>
           <div className="text-center">
-            <div className="font-pixel text-[7px] text-[var(--text-muted)]">RD {Math.min(round, totalRounds)}/{totalRounds}</div>
+            <div className="font-pixel text-[8px] text-[var(--text-muted)]">RD {Math.min(round, totalRounds)}/{totalRounds}</div>
             <div className="flex gap-1 mt-1">
               {Array.from({ length: totalRounds }).map((_, i) => (
                 <div key={i} className={`w-2.5 h-2.5 rounded-full border ${i < shots.length ? shots[i].scored ? 'bg-[var(--neon-green)] border-[var(--neon-green)]' : 'bg-red-500 border-red-500' : 'bg-transparent border-white/30'}`} />
@@ -697,7 +697,7 @@ export default function PenaltyPage() {
             </div>
           </div>
           <div className="text-center">
-            <div className="font-pixel text-[7px] text-[var(--text-muted)]">{selectedAgent.avatar} GK</div>
+            <div className="font-pixel text-[8px] text-[var(--text-muted)]">{selectedAgent.avatar} GK</div>
             <div className="font-pixel text-xl text-[var(--neon-magenta)]">{missed}</div>
           </div>
         </div>
@@ -791,7 +791,7 @@ export default function PenaltyPage() {
               <div className="absolute inset-0 flex items-center justify-center font-pixel text-sm text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{Math.round(power)}%</div>
               <div className="absolute top-0 bottom-0 left-[60%] w-[20%] border-x-2 border-[var(--neon-green)]/40 bg-[var(--neon-green)]/5" />
             </div>
-            <p className="font-pixel text-[7px] text-[var(--text-muted)] mt-1.5">SWEET SPOT 60-80%</p>
+            <p className="font-pixel text-[8px] text-[var(--text-muted)] mt-1.5">SWEET SPOT 60-80%</p>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={lockPower}
               className="mt-3 font-pixel text-xs px-10 py-3 bg-[var(--neon-green)]/20 border border-[var(--neon-green)]/50 rounded-lg text-[var(--neon-green)] hover:bg-[var(--neon-green)]/30 shadow-lg backdrop-blur-sm">
               LOCK
@@ -848,7 +848,7 @@ export default function PenaltyPage() {
                 <span className="font-pixel text-base text-[var(--neon-cyan)]">
                   +{scored * 2 + (scored >= 3 ? 10 : 0)} 0G PTS
                 </span>
-                <div className="font-pixel text-[7px] tracking-widest text-[var(--text-muted)] mt-1">
+                <div className="font-pixel text-[8px] tracking-widest text-[var(--text-muted)] mt-1">
                   {scored} GOAL × 2 {scored >= 3 ? '· +10 WIN BONUS' : ''}
                 </div>
               </motion.div>
