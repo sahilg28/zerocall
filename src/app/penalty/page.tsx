@@ -721,8 +721,8 @@ export default function PenaltyPage() {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col overflow-hidden">
-      {/* Top HUD */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/85 to-transparent">
+      {/* Top HUD — hidden during intro */}
+      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/85 to-transparent ${phase === 'intro' ? 'hidden' : ''}`}>
         <a href="/" className="font-pixel text-[10px] px-3 py-1.5 border border-[var(--neon-green)]/40 rounded-sm text-[var(--neon-green)] hover:bg-[var(--neon-green)]/15 transition-colors tracking-widest">
           ← EXIT
         </a>
@@ -759,8 +759,8 @@ export default function PenaltyPage() {
         </div>
       )}
 
-      {/* Canvas container */}
-      <div ref={containerRef} className="flex-1 relative">
+      {/* Canvas container — hidden during intro */}
+      <div ref={containerRef} className={`flex-1 relative ${phase === 'intro' ? 'invisible' : ''}`}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
         {/* Scanlines */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 3px)' }} />
@@ -768,11 +768,31 @@ export default function PenaltyPage() {
 
       {/* ===== OVERLAYS ===== */}
 
-      {/* Press Start intro */}
+      {/* Press Start intro with video bg */}
       <AnimatePresence>
         {phase === 'intro' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center bg-black/85 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="text-center px-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden">
+            {/* Video background */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover scale-[1.08] motion-reduce:hidden"
+              style={{ filter: 'blur(6px)', opacity: 0.4 }}
+            >
+              <source src="/videos/game_introbg.webm" type="video/webm" />
+            </video>
+            {/* Static fallback for reduced motion */}
+            <div className="absolute inset-0 hidden motion-reduce:block bg-[#020617]" />
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-[#020617]/70" />
+            {/* CRT scanlines */}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px)' }} />
+
+            {/* Content */}
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} className="relative z-10 text-center px-6">
               <motion.h1
                 className="font-pixel text-xl sm:text-3xl md:text-5xl text-[var(--neon-green)] mb-3"
                 style={{ textShadow: '0 0 12px rgba(0,255,136,0.4)' }}
@@ -786,7 +806,7 @@ export default function PenaltyPage() {
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={startGame}
-                className="font-pixel text-sm md:text-lg text-[var(--neon-green)] border-2 border-[var(--neon-green)] px-10 py-4 md:px-14 md:py-5 bg-transparent cursor-pointer animate-pulse hover:animate-none hover:bg-[var(--neon-green)]/10 transition-colors"
+                className="font-pixel text-sm md:text-lg text-[var(--neon-green)] border-2 border-[var(--neon-green)] px-10 py-4 md:px-14 md:py-5 bg-transparent cursor-pointer hover:bg-[var(--neon-green)]/10 transition-colors press-start-btn"
               >
                 ▶ PRESS START
               </motion.button>

@@ -169,14 +169,19 @@ export function PickModal({ match, onClose }: PickModalProps) {
                 )}
 
                 <div className="flex flex-col gap-2 pt-1">
-                  {storageResult?.explorerUrl && (
+                  {storageResult?.demo && (
+                    <p className="font-pixel text-[7px] text-[var(--neon-orange)] tracking-widest text-center">
+                      ⚠ DEMO MODE — HASH IS LOCAL, NOT ON-CHAIN
+                    </p>
+                  )}
+                  {storageResult?.explorerUrl && !storageResult?.demo && (
                     <a
                       href={storageResult.explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-neon w-full flex items-center justify-center gap-2 text-[10px]!"
                     >
-                      ⛓ VIEW ON 0G EXPLORER
+                      ⛓ VIEW ON 0G STORAGE EXPLORER
                     </a>
                   )}
                   <button
