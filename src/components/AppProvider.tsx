@@ -91,6 +91,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted) saveWallet(walletAddress);
+    const isRealWallet = walletAddress && walletAddress.startsWith('0x');
+    if (isRealWallet) {
+      setPicks((prev) => {
+        let changed = false;
+        const updated = prev.map((p) => {
+          const isGuestOrAnon = p.predictorId === 'anon' || p.predictorId.startsWith('guest:');
+          if (isGuestOrAnon) {
+            changed = true;
+            return { ...p, predictorId: walletAddress, id: `${walletAddress}-${p.matchId}-${Date.now()}` };
+          }
+          return p;
+        });
+        if (changed) {
+          const userPicks = updated.filter(
+            (p) => !(AGENT_IDS as readonly string[]).includes(p.predictorId)
+          );
+          savePicks(userPicks);
+        }
+        return updated;
+      });
+    }
   }, [walletAddress, mounted]);
 
   const addPick = useCallback((pick: Pick) => {

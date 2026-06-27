@@ -122,7 +122,7 @@ export default function AgentsPage() {
             <h3 className="font-pixel text-[9px] sm:text-xs text-[var(--neon-cyan)]">
               {agent.displayName.toUpperCase()}&apos;S PICKS
             </h3>
-            <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)]">
+            <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)]">
               {visibleCount > matchesWithPicks.length ? matchesWithPicks.length : visibleCount}/{matchesWithPicks.length}
             </span>
           </div>

@@ -3,117 +3,119 @@
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js" alt="Next.js 16"/>
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react" alt="React 19"/>
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript"/>
-  <img src="https://img.shields.io/badge/Three.js-3D-000000?style=for-the-badge&logo=three.js" alt="Three.js"/>
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License"/>
 </p>
 
-<h1 align="center">⚽ ZeroCall</h1>
+<h1 align="center">ZeroCall</h1>
 
 <p align="center">
   <b>Predict the World Cup. Beat the AI. Prove it on-chain.</b>
 </p>
 
 <p align="center">
-  A retro-arcade football prediction oracle where humans compete against six AI agents across every FIFA World Cup 2026 fixture. Every prediction is cryptographically anchored to the <a href="https://0g.ai">0G Network</a> for tamper-proof, verifiable proof-of-foresight. ⚡
+  A retro-arcade football prediction oracle where humans compete against six AI agents across every FIFA World Cup 2026 fixture. Every prediction is cryptographically anchored to the <a href="https://0g.ai">0G Network</a> for tamper-proof, verifiable proof-of-foresight.
 </p>
 
 <p align="center">
-  <a href="https://0g.ai/arena/zero-cup">Built for the 0G Arena Zero Cup Hackathon</a> 🏆
+  <a href="https://0g.ai/arena/zero-cup">Built for the 0G Arena Zero Cup Hackathon</a>
 </p>
 
 ---
 
-## The Problem 🤔
+## The Problem
 
-Prediction markets and social media predictions have zero accountability. Anyone can claim they "called it" after the fact. There is no timestamped, tamper-proof record that a prediction was made *before* the event happened. ❌
+Prediction markets and social media predictions have zero accountability. Anyone can claim they "called it" after the fact. There is no timestamped, tamper-proof record that a prediction was made *before* the event happened.
 
-## The Solution 💡
+## The Solution
 
 ZeroCall solves this by combining real-time AI inference with decentralized data anchoring:
 
-1. **You predict** a match outcome and exact score before kickoff ⏰
-2. **Your prediction is hashed into a Merkle tree** and uploaded to 0G Storage at the moment of submission 🔒
-3. **The storage hash becomes your receipt** - a verifiable, immutable proof that your call was locked before the whistle blew 📜
-4. **Six AI agents make their own predictions** via 0G Compute, creating a benchmark you compete against 🤖
+1. **You predict** a match outcome and exact score before kickoff
+2. **Your prediction is hashed into a Merkle tree** and uploaded to 0G Storage at the moment of submission
+3. **The storage hash becomes your receipt** — a verifiable, immutable proof that your call was locked before the whistle blew
+4. **Six AI agents make their own predictions** via 0G Compute, creating a benchmark you compete against
 
-No edits. No deletions. No "I told you so" without proof. 🎯
+No edits. No deletions. No "I told you so" without proof.
 
 ---
 
-## 0G Integration Deep Dive 🔗
+## 0G Integration Deep Dive
 
 This project leverages two core pillars of the 0G ecosystem:
 
-### 0G Storage (Data Availability Layer) 🗄️
+### 0G Storage (Data Availability Layer)
 
-Every prediction submitted through ZeroCall is packaged as a JSON payload containing the predictor's wallet address, match ID, predicted outcome, predicted score, and a UTC timestamp. This payload is:
+Every prediction submitted through ZeroCall is packaged as a JSON payload containing the predictor identity, match ID, predicted outcome, predicted score, and a UTC timestamp. This payload is:
 
-1. Written to a temporary file on the server 📝
-2. Processed into a **Merkle tree** using the `@0glabs/0g-ts-sdk` 🌳
-3. Uploaded to 0G Storage via the Galileo Testnet indexer 📤
-4. The resulting **root hash** is returned to the client as an immutable storage reference ✅
+1. Written to a temporary file on the server
+2. Processed into a **Merkle tree** using the `@0glabs/0g-ts-sdk`
+3. Uploaded to 0G Storage via the Galileo Testnet indexer
+4. The resulting **root hash** is returned to the client as an immutable storage reference
 
-The root hash links directly to the 0G StorageScan explorer, where anyone can independently verify the prediction data. See the implementation in [`storage.ts`](src/lib/storage.ts). 🔍
+The root hash links directly to the 0G StorageScan explorer, where anyone can independently verify the prediction data. See [`src/lib/storage.ts`](src/lib/storage.ts).
 
-### 0G Compute (Decentralized AI Inference) 🧠
+### 0G Compute (Decentralized AI Inference)
 
-Six AI agents generate predictions for every fixture using decentralized inference through 0G Compute. Each agent sends a structured prompt to the `qwen/qwen-2.5-7b-instruct` model with a unique system persona that shapes its analytical approach. The AI responses are parsed as structured JSON containing the predicted outcome, score, and reasoning. See the implementation in [`agents.ts`](src/lib/agents.ts). ⚙️
+Six AI agents generate predictions for every fixture using decentralized inference through 0G Compute. Each agent sends a structured prompt to the `qwen/qwen-2.5-7b-instruct` model via the 0G Compute API (`router-api.0g.ai/v1`) with a unique system persona. Temperature settings vary per agent personality — from 0.3 (conservative Sage/Knox) to 0.95 (chaotic Ronin). See [`src/lib/agents.ts`](src/lib/agents.ts).
+
+Match simulation results from the Agent Arena are also anchored to 0G Storage, creating a full audit trail of every AI-vs-AI battle.
 
 ---
 
-## Features 🎮
+## Features
 
-### Global Arena 🌍
-The main prediction hub. Browse all World Cup 2026 group stage fixtures, submit your outcome and exact score predictions, and watch your calls get locked to 0G in real-time. A countdown timer tracks the next kickoff, and completed matches reveal results alongside your accuracy. 📊
+### Global Arena
+The main prediction hub. Browse all World Cup 2026 group stage fixtures, submit your outcome and exact score predictions, and watch your calls get locked to 0G in real-time. A countdown timer tracks the next kickoff, and completed matches reveal results alongside your accuracy.
 
-### Agent Arena 🤖
-Six autonomous AI predictors, each with a distinct personality and strategy:
+### Six AI Agents
 
 | Agent | Avatar | Strategy |
 |-------|--------|----------|
-| **Vega** | ✨ | Balanced analyst weighing form, rankings, and matchup history evenly |
-| **Ronin** | 🃏 | Upset specialist who backs underdogs and thrives on chaos |
-| **Sage** | 📊 | Pure statistics engine driven by xG, rankings, and H2H data |
-| **Halo** | 🔥 | Narrative-driven believer in momentum and tournament destiny |
-| **Knox** | 🛡️ | Defensive realist expecting low-scoring tactical grinds |
-| **Phoenix** | 🚀 | Hot-hand form chaser who backs teams on winning streaks |
+| **Vega** | ✨ | Balanced analyst — form, rankings, matchup history |
+| **Ronin** | 🃏 | Upset specialist — backs underdogs, thrives on chaos |
+| **Sage** | 📊 | Pure statistics — xG, rankings, H2H data only |
+| **Halo** | 🔥 | Narrative-driven — momentum, destiny, tournament magic |
+| **Knox** | 🛡️ | Defensive realist — expects low-scoring tactical grinds |
+| **Phoenix** | 🚀 | Form chaser — backs teams on winning streaks |
 
-Each agent generates predictions via 0G Compute with tuned temperature settings. Ronin runs at 0.95 temperature for maximum unpredictability. Sage and Knox run at 0.3 for conservative, data-driven outputs. 🎲
+### Agent vs Agent Match Simulator
+Pick two AI agents, choose tactics (Attack / Balanced / Defense), and watch them battle head-to-head in a possession-based football simulation rendered on Canvas 2D. Each agent's stats (ATK/DEF/MID/SPD/LUCK) and tactic modifiers determine dribble success, shot accuracy, and goal probability across 10 possessions. Match results are uploaded to 0G Storage.
 
-### Penalty Shootout Minigame ⚽
-A fully interactive 3D penalty shootout built with Three.js. Choose your shot direction (5 zones), height (low/mid/high), and power. The AI goalkeeper uses agent-specific strategies to read your shooting patterns:
+### Penalty Shootout Minigame
+A fully interactive penalty shootout with Canvas 2D rendering. Choose your shot direction and try to beat the AI goalkeeper. Score 3+ out of 5 to win the bonus. Each AI agent uses a different goalkeeping strategy.
 
-- **Vega** mirrors the opposite of your last shot 🪞
-- **Sage** tracks your most common direction and plays percentages 📈
-- **Phoenix** copies your exact last shot direction 🔄
-- **Knox** always plants center, mid-height (the defensive realist) 🧱
-- **Ronin** only dives to the extremes, left or right 💨
-- **Halo** is pure 50/50 gut instinct every time 🎰
+### User Profile
+Track your 0G PTS balance, prediction stats (rank, picks, accuracy, correct outcomes, exact scores), daily challenge progress, and full prediction history with 0G proof links.
 
-Score 3+ out of 5 to win, earn bonus leaderboard points. 🏅
+### Daily Challenges
+Two daily quests that reset each day:
+- **Predict 1 match** — +20 0G PTS
+- **Play Penalty Shootout** — +20 0G PTS
 
-### Head-to-Head Comparisons ⚔️
-Pick any two predictors (human or AI) and view a match-by-match breakdown of their predictions, scores, and accuracy. See who had the better read on every completed fixture. 📋
+### Head-to-Head Comparisons
+Pick any two predictors (human or AI) and view a match-by-match breakdown of their predictions, scores, and accuracy.
 
-### Global Leaderboard 🏆
-A unified ranking system combining humans and AI agents. The scoring system awards:
-- **3 points** for a correct outcome (home/draw/away) ✅
-- **+2 bonus points** for an exact score prediction 🎯
-- Tiebreakers resolved by exact score count 🥇
+### Global Leaderboard
+A unified ranking with accuracy tracking:
 
-### Prophet Moment Celebrations 🔮
-When you or an agent nails an upset prediction with the exact score, the app triggers a special "Prophet Moment" animation celebrating the call. 🎉
+| Event | 0G PTS |
+|-------|--------|
+| Correct outcome (home/draw/away) | +15 |
+| Exact score match | +10 bonus |
+| **Maximum per match** | **25** |
+
+The leaderboard shows points, correct outcomes, exact scores, and ACC% (accuracy percentage computed from scored picks).
 
 ---
 
-## Tech Stack 🛠️
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | **Framework** | Next.js 16 (App Router) with React 19 and TypeScript 5 |
 | **Styling** | Tailwind CSS 4 with custom retro CRT design system |
 | **Animations** | Framer Motion for page transitions and micro-interactions |
-| **3D Engine** | Three.js for the penalty shootout simulation |
+| **2D Rendering** | Canvas 2D for match simulator and penalty shootout |
 | **Web3 Wallet** | RainbowKit + Wagmi + Viem for wallet connect |
 | **Blockchain SDK** | `@0glabs/0g-ts-sdk` + Ethers.js v6 for 0G Storage uploads |
 | **AI Inference** | 0G Compute API (OpenAI-compatible chat completions) |
@@ -122,12 +124,12 @@ When you or an agent nails an upset prediction with the exact score, the app tri
 
 ---
 
-## Getting Started 🚀
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 📦
-- A funded wallet on the 0G Galileo Testnet (get test tokens from [faucet.0g.ai](https://faucet.0g.ai)) 💰
+- Node.js 18+
+- A funded wallet on the 0G Galileo Testnet (get test tokens from [faucet.0g.ai](https://faucet.0g.ai))
 
 ### Installation
 
@@ -147,28 +149,27 @@ cp .env.example .env
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. 🖥️
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `PRIVATE_KEY` | Wallet private key for 0G Storage uploads |
+| `ZG_API_KEY` | 0G Compute API key for AI inference |
+| `RPC_URL` | 0G Galileo Testnet RPC (defaults to `https://evmrpc-testnet.0g.ai`) |
+| `STORAGE_INDEXER` | 0G Storage indexer URL (defaults to turbo endpoint) |
+| `ZG_SERVICE_URL` | 0G Compute endpoint (defaults to `https://router-api.0g.ai/v1`) |
+| `ZG_MODEL` | AI model ID (defaults to `qwen/qwen-2.5-7b-instruct`) |
 
 ---
 
-## Scoring System 📐
+## License
 
-| Event | Points |
-|-------|--------|
-| Correct outcome (home/draw/away) | +3 |
-| Exact score match | +2 (bonus, on top of outcome points) |
-| **Maximum per match** | **5** |
-
-Leaderboard ties are broken by exact score count, then by total predictions made. 🏅
-
----
-
-## License 📄
-
-This project is open source under the [MIT License](LICENSE). ✅
+This project is open source under the [MIT License](LICENSE).
 
 ---
 
 <p align="center">
-  Built with ☕ and ⚽ for the <a href="https://0g.ai/arena/zero-cup">0G Arena Zero Cup</a>
+  Built for the <a href="https://0g.ai/arena/zero-cup">0G Arena Zero Cup</a>
 </p>

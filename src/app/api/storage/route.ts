@@ -21,10 +21,12 @@ export async function POST(req: NextRequest) {
       timestamp: body.timestamp || new Date().toISOString(),
     };
 
+    console.log('[0G Storage] Uploading:', pickData.type, '| keys:', Object.keys(pickData).join(', '));
+
     const result = await uploadPickToStorage(pickData);
 
     if (!result.success) {
-      // Fall back to a deterministic content-hash so the UI still shows a lock proof.
+      console.log('[0G Storage] Upload failed, falling back to demo hash:', result.error);
       const fake = demoHash(pickData);
       return NextResponse.json({
         success: true,
@@ -35,6 +37,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    console.log('[0G Storage] SUCCESS — rootHash:', result.rootHash);
     return NextResponse.json({
       success: true,
       demo: false,
@@ -43,6 +46,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
+    console.error('[0G Storage] Exception:', message);
     return NextResponse.json(
       { success: false, error: message, fallback: true },
       { status: 200 }

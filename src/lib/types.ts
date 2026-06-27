@@ -30,6 +30,7 @@ export interface Pick {
   reason?: string;
   timestamp: string; // ISO 8601
   storageRef?: string; // 0G storage hash
+  isDemo?: boolean; // If fallback demo hash was used
 }
 
 export interface LeaderboardEntry {
@@ -38,6 +39,7 @@ export interface LeaderboardEntry {
   correctOutcomes: number;
   exactScores: number;
   totalPicks: number;
+  accuracy: number;
 }
 
 export interface AgentPrediction {
@@ -54,41 +56,35 @@ export const AGENTS: Predictor[] = [
     type: 'agent',
     displayName: 'Vega',
     agentPersona: 'The playmaker. Weighs form, rankings, and matchup history evenly. Balanced reader of the game.',
-    avatar: '✨',
   },
   {
     id: 'ronin',
     type: 'agent',
     displayName: 'Ronin',
     agentPersona: 'The maverick. Lives on the upset. Backs the underdog when the gap is close — chaos is fuel.',
-    avatar: '🃏',
   },
   {
     id: 'sage',
     type: 'agent',
     displayName: 'Sage',
     agentPersona: 'The tactician. Pure stats — FIFA rankings, H2H, xG, goal difference. No gut. Only numbers.',
-    avatar: '📊',
   },
   {
     id: 'halo',
     type: 'agent',
     displayName: 'Halo',
     agentPersona: 'The believer. Momentum, narrative, host-nation magic, captain-last-tournament storylines.',
-    avatar: '🔥',
   },
   {
     id: 'knox',
     type: 'agent',
     displayName: 'Knox',
     agentPersona: 'The sweeper. Defensive realist — favors 1-0 grinds, late goals, clean sheets, low-event games.',
-    avatar: '🛡',
   },
   {
     id: 'phoenix',
     type: 'agent',
     displayName: 'Phoenix',
     agentPersona: 'The hot-hand. Pure form chaser — backs the side on a streak, fades the side cooling off.',
-    avatar: '🚀',
   },
 ];

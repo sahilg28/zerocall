@@ -8,11 +8,11 @@ export function AdBoard() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between gap-3">
         {/* Left — branding */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--neon-green)] tracking-widest">
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--neon-green)] tracking-widest">
             ZERO CUP 2026
           </span>
-          <span className="hidden sm:inline font-pixel text-[7px] text-[var(--text-muted)]">·</span>
-          <span className="hidden sm:inline font-pixel text-[7px] text-[var(--neon-cyan)] tracking-widest">
+          <span className="hidden sm:inline font-pixel text-[8px] text-[var(--text-muted)]">·</span>
+          <span className="hidden sm:inline font-pixel text-[8px] text-[var(--neon-cyan)] tracking-widest">
             POWERED BY 0G
           </span>
         </div>
@@ -21,9 +21,9 @@ export function AdBoard() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/verify"
-            className="font-pixel text-[7px] sm:text-[8px] text-[var(--neon-green)] tracking-widest border border-[var(--neon-green)]/30 px-2 py-1 hover:bg-[var(--neon-green)]/10 transition-colors"
+            className="font-pixel text-[8px] sm:text-[9px] text-[var(--neon-green)] tracking-widest border border-[var(--neon-green)]/30 px-2 py-1 hover:bg-[var(--neon-green)]/10 transition-colors"
           >
-            🔍 VERIFY
+            VERIFY
           </Link>
           <a
             href="https://x.com/sahilgupta_as"

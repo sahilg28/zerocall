@@ -12,51 +12,51 @@ const PressStart = dynamic(() => import('@/components/PressStart'), { ssr: false
 
 const heroModes = [
   {
-    title: 'GLOBAL ARENA',
+    title: 'Global Arena',
     subtitle: 'Predict every World Cup match before kickoff. Out-call six AI agents. Every pick locks on 0G.',
     href: '/global',
     color: 'var(--neon-green)',
-    icon: '🏆',
+    icon: 'Z',
     badge: 'REAL-TIME',
     badgeColor: '#00ff88',
     cta: 'PREDICT NOW',
   },
   {
-    title: 'AGENT ARENA',
-    subtitle: 'Watch six AI agents duel across every fixture. Each agent has a unique strategy.',
-    href: '/agents',
+    title: 'Head2Head Arena',
+    subtitle: 'Pick two FC teams, set tactics, and watch them battle on the pixel pitch with full match simulation.',
+    href: '/head2head',
     color: 'var(--neon-magenta)',
-    icon: '🤖',
-    badge: '0G COMPUTE',
+    icon: 'VS',
+    badge: 'PLAY',
     badgeColor: '#ff00ff',
-    cta: 'ENTER',
+    cta: 'KICK OFF',
   },
 ];
 
 const sideModes = [
   {
-    title: 'PENALTY SHOOTOUT',
-    short: 'Five shots vs an AI keeper that reads your tells. +10 0G PTS to win.',
-    href: '/penalty',
+    title: 'Penalty Shooter Game [PSG]',
+    short: 'Five shots vs an AI keeper that reads your tells. +25 WIN BONUS.',
+    href: '/psg',
     color: 'var(--neon-orange)',
-    icon: '⚽',
+    icon: 'PSG',
     badge: 'PLAY',
   },
   {
-    title: 'TOURNAMENT BRACKET',
+    title: 'Tournament Bracket',
     short: 'Group standings and knockout bracket — all 104 matches.',
     href: '/bracket',
     color: 'var(--neon-cyan)',
-    icon: '🏟',
+    icon: 'BKT',
     badge: 'VIEW',
   },
   {
-    title: 'HEAD TO HEAD',
-    short: 'Anyone vs anyone. Match-by-match scorecards.',
-    href: '/compare',
+    title: 'AI Agents',
+    short: 'Six AI agents predict every fixture via 0G Compute. See their strategies.',
+    href: '/agents',
     color: 'var(--neon-yellow)',
-    icon: '⚔️',
-    badge: 'COMPARE',
+    icon: 'AI',
+    badge: 'VIEW',
   },
 ];
 
@@ -98,18 +98,7 @@ export default function LandingPage() {
       <div className="relative flex flex-col items-center min-h-[calc(100vh-120px)] px-3 sm:px-4 py-4 sm:py-8">
         <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
 
-          {/* Status pill */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--neon-green)]/40 bg-[var(--neon-green)]/10 mb-5"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-green)] animate-pulse" />
-            <span className="font-pixel text-[8px] text-[var(--neon-green)] tracking-widest">
-              TOURNAMENT ACTIVE · {stats.totalPicks} PICKS LOCKED
-            </span>
-          </motion.div>
+
 
           {/* Compact wordmark */}
           <motion.h1
@@ -162,7 +151,7 @@ export default function LandingPage() {
             ].map((s) => (
               <div key={s.label} className="card-retro flex flex-col items-center justify-center py-2.5 sm:py-3 px-1">
                 <span className="font-pixel text-sm sm:text-lg" style={{ color: s.color }}>{s.value}</span>
-                <span className="font-pixel text-[6px] sm:text-[7px] text-[var(--text-muted)] tracking-widest mt-0.5">{s.label}</span>
+                <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)] tracking-widest mt-0.5">{s.label}</span>
               </div>
             ))}
           </motion.div>
@@ -175,34 +164,33 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.1 }}
+                className="h-full"
               >
                 <Link href={m.href} className="block group h-full">
                   <div
-                    className="card-hero p-5 sm:p-6 h-full cursor-pointer"
+                    className="card-hero p-5 sm:p-6 h-full cursor-pointer flex flex-col justify-between min-h-[175px] sm:min-h-[190px]"
                     style={{ borderColor: `color-mix(in srgb, ${m.color} 30%, transparent)` }}
                   >
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg sm:text-xl">{m.icon}</span>
-                          <span className="font-pixel text-[8px] tracking-widest" style={{ color: m.color }}>{m.badge}</span>
+                    <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                      <div>
+                        <div className="flex items-center justify-between gap-3 mb-3.5">
+                          <h2
+                            className="font-pixel text-sm sm:text-lg tracking-wider"
+                            style={{ color: m.color }}
+                          >
+                            {m.title}
+                          </h2>
+                          <span
+                            className="badge-tag shrink-0"
+                            style={{ color: m.badgeColor, borderColor: `${m.badgeColor}50`, background: `${m.badgeColor}15` }}
+                          >
+                            {m.badge}
+                          </span>
                         </div>
-                        <span
-                          className="badge-tag"
-                          style={{ color: m.badgeColor, borderColor: `${m.badgeColor}50`, background: `${m.badgeColor}15` }}
-                        >
-                          {m.badge}
-                        </span>
+                        <p className="font-retro text-xs sm:text-sm text-[var(--text-muted)] mb-4 leading-relaxed">
+                          {m.subtitle}
+                        </p>
                       </div>
-                      <h2
-                        className="font-pixel text-sm sm:text-lg mb-2 tracking-wider"
-                        style={{ color: m.color }}
-                      >
-                        {m.title}
-                      </h2>
-                      <p className="font-retro text-sm sm:text-base text-[var(--text-muted)] mb-4 leading-snug">
-                        {m.subtitle}
-                      </p>
                       <span
                         className="inline-flex items-center gap-2 font-pixel text-[9px] group-hover:gap-3 transition-all"
                         style={{ color: m.color }}
@@ -224,26 +212,30 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.75 + i * 0.08 }}
+                className="h-full"
               >
                 <Link href={m.href} className="block group h-full">
                   <div
-                    className="card-hero p-4 h-full cursor-pointer"
+                    className="card-hero p-5 h-full cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px]"
                     style={{ borderColor: `color-mix(in srgb, ${m.color} 25%, transparent)`, borderLeftWidth: '3px', borderLeftColor: `color-mix(in srgb, ${m.color} 50%, transparent)` }}
                   >
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl sm:text-2xl">{m.icon}</span>
-                        <h3 className="font-pixel text-[9px] sm:text-[10px] tracking-wider" style={{ color: m.color }}>
-                          {m.title}
-                        </h3>
+                    <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                      <div>
+                        <div className="mb-2.5">
+                          <h3 className="font-pixel text-[9px] sm:text-[10px] tracking-wider" style={{ color: m.color }}>
+                            {m.title}
+                          </h3>
+                        </div>
+                        <p className="font-retro text-xs text-[var(--text-muted)] leading-relaxed mb-3">{m.short}</p>
                       </div>
-                      <p className="font-retro text-sm text-[var(--text-muted)] leading-snug mb-2">{m.short}</p>
-                      <span
-                        className="badge-tag inline-block"
-                        style={{ color: m.color, borderColor: `color-mix(in srgb, ${m.color} 40%, transparent)`, background: `color-mix(in srgb, ${m.color} 8%, transparent)` }}
-                      >
-                        {m.badge} →
-                      </span>
+                      <div>
+                        <span
+                          className="badge-tag inline-block text-[8px]"
+                          style={{ color: m.color, borderColor: `color-mix(in srgb, ${m.color} 40%, transparent)`, background: `color-mix(in srgb, ${m.color} 8%, transparent)` }}
+                        >
+                          {m.badge} →
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>

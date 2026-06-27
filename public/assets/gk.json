@@ -1,0 +1,26 @@
+{
+  "image": "/assets/gk.png",
+  "cols": 10,
+  "rows": 1,
+  "frameW": 311,
+  "frameH": 333,
+  "frames": {
+    "idle": 0,
+    "dive_left": 1,
+    "dive_right": 2,
+    "catch_high": 3,
+    "save_low": 4,
+    "fall_back": 5,
+    "on_ground": 6,
+    "look_back": 7,
+    "down_on_knees": 8,
+    "upset": 9
+  },
+  "idleH": 218,
+  "concede": [
+    "fall_back",
+    "on_ground",
+    "down_on_knees",
+    "upset"
+  ]
+}

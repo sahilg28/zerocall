@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Match, Pick, Outcome } from '@/lib/types';
-import { useApp } from '@/lib/store';
+import { useApp, addPoints } from '@/lib/store';
 import { getFlagUrl } from '@/lib/countries';
 import { emitZeroGEvent } from '@/components/ZeroGFeed';
+import { completeQuest } from '@/lib/quests';
 
 interface PickModalProps {
   match: Match | null;
@@ -98,6 +99,12 @@ export function PickModal({ match, onClose }: PickModalProps) {
     };
 
     addPick(pick);
+    let ptsToAdd = 10;
+    const questReward = completeQuest('predict_match');
+    if (questReward > 0) {
+      ptsToAdd += questReward;
+    }
+    addPoints(ptsToAdd);
     setStorageResult({ rootHash: storageRef, explorerUrl, demo: isDemo });
     setLocked(true);
     setIsLocking(false);
@@ -170,7 +177,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
 
                 <div className="flex flex-col gap-2 pt-1">
                   {storageResult?.demo && (
-                    <p className="font-pixel text-[7px] text-[var(--neon-orange)] tracking-widest text-center">
+                    <p className="font-pixel text-[8px] text-[var(--neon-orange)] tracking-widest text-center">
                       ⚠ DEMO MODE — HASH IS LOCAL, NOT ON-CHAIN
                     </p>
                   )}
@@ -255,7 +262,7 @@ export function PickModal({ match, onClose }: PickModalProps) {
                   className="mb-6"
                 >
                   <p className="font-pixel text-[9px] text-[var(--text-muted)] mb-3 text-center">
-                    PREDICT EXACT SCORE (+2 BONUS)
+                    PREDICT EXACT SCORE (+10 BONUS)
                   </p>
                   <div className="flex items-center justify-center gap-4">
                     <div className="flex items-center gap-2">

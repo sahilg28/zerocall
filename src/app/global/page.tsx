@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/lib/store';
 import { buildLeaderboard } from '@/lib/scoring';
 import { MatchCard } from '@/components/MatchCard';
-import { PickModal } from '@/components/PickModal';
 import { Leaderboard } from '@/components/Leaderboard';
 import { ProphetMoment } from '@/components/ProphetMoment';
 import { Match } from '@/lib/types';
@@ -16,7 +15,6 @@ const RESULT_PAGE = 4;
 
 export default function GlobalPage() {
   const { matches, picks, predictors, walletAddress, getUserPick } = useApp();
-  const [pickingMatch, setPickingMatch] = useState<Match | null>(null);
   const [prophetData, setProphetData] = useState<{ pickId: string } | null>(null);
   const [upcomingVisible, setUpcomingVisible] = useState(MATCH_PAGE);
   const [resultsVisible, setResultsVisible] = useState(RESULT_PAGE);
@@ -78,7 +76,7 @@ export default function GlobalPage() {
         className="text-center mb-4 sm:mb-6"
       >
         <h1 className="font-pixel text-sm sm:text-xl text-[var(--neon-green)] glow-green mb-1 sm:mb-2 flex items-center justify-center gap-2">
-          <span>🏆</span> GLOBAL ARENA
+          GLOBAL ARENA
         </h1>
         <p className="font-retro text-xs sm:text-base text-[var(--text-muted)]">
           Beat the AI. Prove your foresight on-chain.
@@ -112,7 +110,7 @@ export default function GlobalPage() {
                   <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[var(--neon-cyan)] rounded-full animate-pulse" />
                   UPCOMING MATCHES
                 </h2>
-                <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)]">
+                <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)]">
                   {Math.min(upcomingVisible, upcomingMatches.length)}/{upcomingMatches.length}
                 </span>
               </div>
@@ -121,7 +119,6 @@ export default function GlobalPage() {
                   <MatchCard
                     key={match.id}
                     match={match}
-                    onPick={setPickingMatch}
                     userPick={getUserPick(match.id)}
                     index={i}
                   />
@@ -156,7 +153,7 @@ export default function GlobalPage() {
                 <h2 className="font-pixel text-[9px] sm:text-xs text-[var(--text-muted)]">
                   RESULTS
                 </h2>
-                <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)]">
+                <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)]">
                   {Math.min(resultsVisible, finishedMatches.length)}/{finishedMatches.length}
                 </span>
               </div>
@@ -165,7 +162,6 @@ export default function GlobalPage() {
                   <MatchCard
                     key={match.id}
                     match={match}
-                    onPick={setPickingMatch}
                     userPick={getUserPick(match.id)}
                     index={i}
                   />
@@ -201,9 +197,6 @@ export default function GlobalPage() {
           </div>
         </div>
       </div>
-
-      {/* Pick modal */}
-      <PickModal match={pickingMatch} onClose={() => setPickingMatch(null)} />
 
       {/* Prophet moment overlay */}
       <ProphetMoment

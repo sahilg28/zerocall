@@ -1,0 +1,22 @@
+{
+  "image": "/assets/dog.png",
+  "cols": 7,
+  "rows": 1,
+  "frameW": 274,
+  "frameH": 179,
+  "frames": {
+    "stand": 0,
+    "walk0": 1,
+    "walk1": 2,
+    "sit": 3,
+    "bark": 4,
+    "walk_a": 5,
+    "walk_b": 6
+  },
+  "walkCycle": [
+    "walk0",
+    "walk_a",
+    "walk1",
+    "walk_b"
+  ]
+}

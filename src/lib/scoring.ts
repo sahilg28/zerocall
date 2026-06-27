@@ -13,13 +13,13 @@ export function scorePick(pick: Pick, match: Match): number {
   let points = 0;
 
   if (pick.outcome === actualOutcome) {
-    points += 3;
+    points += 15;
     if (
       pick.score &&
       pick.score.home === match.result.home &&
       pick.score.away === match.result.away
     ) {
-      points += 2;
+      points += 10;
     }
   }
 
@@ -40,21 +40,24 @@ export function buildLeaderboard(
       let correctOutcomes = 0;
       let exactScores = 0;
 
+      let scoredPicks = 0;
+
       for (const pick of predictorPicks) {
         const match = matchMap.get(pick.matchId);
         if (!match || match.status !== 'final' || !match.result) continue;
+        scoredPicks++;
 
         const actualOutcome = getOutcomeFromResult(match.result);
         if (pick.outcome === actualOutcome) {
           correctOutcomes++;
-          points += 3;
+          points += 15;
           if (
             pick.score &&
             pick.score.home === match.result.home &&
             pick.score.away === match.result.away
           ) {
             exactScores++;
-            points += 2;
+            points += 10;
           }
         }
       }
@@ -65,6 +68,7 @@ export function buildLeaderboard(
         correctOutcomes,
         exactScores,
         totalPicks: predictorPicks.length,
+        accuracy: scoredPicks > 0 ? Math.round((correctOutcomes / scoredPicks) * 100) : 0,
       };
     })
     .sort((a, b) => b.points - a.points || b.exactScores - a.exactScores);

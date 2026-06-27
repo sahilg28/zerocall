@@ -45,7 +45,7 @@ export function ZeroGFeed() {
       <div className="fixed bottom-[38px] left-3 z-40">
         <button
           onClick={() => setExpanded(!expanded)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 border-2 font-pixel text-[7px] tracking-widest transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 border-2 font-pixel text-[8px] tracking-widest transition-all ${
             expanded
               ? 'bg-[var(--neon-green)]/10 border-[var(--neon-green)]/40 text-[var(--neon-green)] shadow-[0_0_12px_rgba(0,255,136,0.1)]'
               : 'bg-[var(--bg-primary)]/95 border-white/12 text-[var(--text-muted)] hover:border-[var(--neon-green)]/30 hover:text-[var(--neon-green)]'
@@ -66,10 +66,10 @@ export function ZeroGFeed() {
             className="fixed bottom-[62px] left-3 z-40 w-72 sm:w-80 max-h-60 overflow-y-auto bg-[var(--bg-primary)]/97 border-2 border-[var(--neon-green)]/20 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
           >
             <div className="p-2 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[var(--bg-primary)]/95 z-10">
-              <span className="font-pixel text-[7px] text-[var(--neon-green)] tracking-widest">0G ACTIVITY</span>
+              <span className="font-pixel text-[8px] text-[var(--neon-green)] tracking-widest">0G ACTIVITY</span>
               <button
                 onClick={() => setExpanded(false)}
-                className="font-pixel text-[7px] text-[var(--text-muted)] hover:text-white"
+                className="font-pixel text-[8px] text-[var(--text-muted)] hover:text-white"
               >
                 ✕
               </button>
@@ -114,12 +114,12 @@ function FeedItem({ event }: { event: ZeroGEvent }) {
             {event.message}
           </p>
           {event.hash && (
-            <p className="font-pixel text-[6px] text-[var(--text-muted)] mt-0.5 truncate">
+            <p className="font-pixel text-[8px] text-[var(--text-muted)] mt-0.5 truncate">
               {event.hash.slice(0, 20)}…
             </p>
           )}
         </div>
-        <span className="font-pixel text-[6px] text-[var(--text-muted)] shrink-0">{ageStr}</span>
+        <span className="font-pixel text-[8px] text-[var(--text-muted)] shrink-0">{ageStr}</span>
       </div>
     </div>
   );

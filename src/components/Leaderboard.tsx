@@ -42,9 +42,9 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
             className="overflow-hidden mb-2"
           >
             <div className="bg-[var(--neon-cyan)]/5 border border-[var(--neon-cyan)]/20 p-2 space-y-0.5">
-              <p className="font-pixel text-[7px] text-[var(--neon-cyan)]">0G PTS = +3 OUTCOME · +2 EXACT</p>
-              <p className="font-pixel text-[7px] text-[var(--text-muted)]">✓ = CORRECT OUTCOME</p>
-              <p className="font-pixel text-[7px] text-[var(--neon-yellow)]">⭐ = EXACT SCORE</p>
+              <p className="font-pixel text-[8px] text-[var(--neon-cyan)]">0G PTS = +15 OUTCOME · +10 EXACT</p>
+              <p className="font-pixel text-[8px] text-[var(--text-muted)]">✓ = CORRECT OUTCOME</p>
+              <p className="font-pixel text-[8px] text-[var(--neon-yellow)]">⭐ = EXACT SCORE</p>
             </div>
           </motion.div>
         )}
@@ -53,12 +53,13 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
 
       <div className="space-y-1">
         {/* Header */}
-        <div className="grid grid-cols-[24px_1fr_50px_36px_36px] sm:grid-cols-[30px_1fr_70px_50px_50px] gap-1 sm:gap-2 px-2 pb-2 border-b border-white/10">
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)]">#</span>
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)]">PLAYER</span>
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)] text-right">PTS</span>
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)] text-right">✓</span>
-          <span className="font-pixel text-[7px] sm:text-[8px] text-[var(--text-muted)] text-right">⭐</span>
+        <div className="grid grid-cols-[24px_1fr_50px_36px_36px_40px] sm:grid-cols-[30px_1fr_70px_50px_50px_50px] gap-1 sm:gap-2 px-2 pb-2 border-b border-white/10">
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)]">#</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)]">PLAYER</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)] text-right">PTS</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)] text-right">✓</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)] text-right">⭐</span>
+          <span className="font-pixel text-[8px] sm:text-[9px] text-[var(--text-muted)] text-right">ACC</span>
         </div>
 
         <AnimatePresence mode="popLayout">
@@ -69,7 +70,7 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05, type: 'spring', stiffness: 200 }}
-              className={`grid grid-cols-[24px_1fr_50px_36px_36px] sm:grid-cols-[30px_1fr_70px_50px_50px] gap-1 sm:gap-2 px-2 py-1.5 sm:py-2 rounded-sm transition-colors ${
+              className={`grid grid-cols-[24px_1fr_50px_36px_36px_40px] sm:grid-cols-[30px_1fr_70px_50px_50px_50px] gap-1 sm:gap-2 px-2 py-1.5 sm:py-2 rounded-sm transition-colors ${
                 entry.predictor.id === highlightId
                   ? 'bg-[var(--neon-cyan)]/10 border border-[var(--neon-cyan)]/30 shadow-[0_0_12px_rgba(0,229,255,0.08)]'
                   : i < 3
@@ -110,6 +111,9 @@ export function Leaderboard({ entries, title = 'LEADERBOARD', highlightId }: Lea
               </span>
               <span className="font-retro text-sm text-right text-[var(--neon-yellow)]">
                 {entry.exactScores}
+              </span>
+              <span className="font-retro text-sm text-right text-[var(--text-muted)]">
+                {entry.accuracy}%
               </span>
             </motion.div>
           ))}

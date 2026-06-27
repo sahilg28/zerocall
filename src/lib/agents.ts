@@ -27,6 +27,7 @@ Predict the outcome. You MUST respond with ONLY valid JSON, no other text:
   const apiKey = process.env.ZG_API_KEY || process.env.ZG_API_SECRET || '';
 
   try {
+    console.log(`[0G Compute] Calling ${baseUrl}/chat/completions for agent=${agentId}, key=${apiKey ? 'set' : 'MISSING'}`);
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -55,8 +56,10 @@ Predict the outcome. You MUST respond with ONLY valid JSON, no other text:
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No JSON in response');
 
+    console.log(`[0G Compute] Live response from 0G for agent=${agentId}`);
     return JSON.parse(jsonMatch[0]) as AgentPrediction;
-  } catch {
+  } catch (err) {
+    console.log(`[0G Compute] Falling back to template for agent=${agentId}:`, err instanceof Error ? err.message : String(err));
     return generateFallbackPick(agentId, match);
   }
 }

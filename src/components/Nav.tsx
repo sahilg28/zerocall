@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useApp, isMuted as readMuted, setMuted as writeMuted } from '@/lib/store';
+import { useApp, isMuted as readMuted, setMuted as writeMuted, getPoints } from '@/lib/store';
 import { getChiptune } from '@/lib/chiptune';
+import { DAILY_QUESTS, getTodayProgress, type DailyProgress } from '@/lib/quests';
 
 export function Nav() {
   const pathname = usePathname();
@@ -15,6 +16,8 @@ export function Nav() {
   const [showConnect, setShowConnect] = useState(false);
   const [guestName, setGuestName] = useState('');
   const [walletError, setWalletError] = useState<string | null>(null);
+  const [showGamesMenu, setShowGamesMenu] = useState(false);
+  const [showQuestsMenu, setShowQuestsMenu] = useState(false);
 
   const isGuest = walletAddress?.startsWith('guest:');
   const displayName = isGuest
@@ -33,22 +36,35 @@ export function Nav() {
 
   const [muted, setMutedState] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
+  const [pts, setPts] = useState(0);
+  const [questProgress, setQuestProgress] = useState<DailyProgress>({});
 
   useEffect(() => {
     setMutedState(readMuted());
+    setPts(getPoints());
+    setQuestProgress(getTodayProgress());
     const onMuteChange = (e: Event) => setMutedState((e as CustomEvent<boolean>).detail);
     window.addEventListener('zerocall-mute', onMuteChange);
-    return () => window.removeEventListener('zerocall-mute', onMuteChange);
+    const onPointsChange = (e: Event) => setPts((e as CustomEvent<number>).detail);
+    window.addEventListener('zerocall-points', onPointsChange);
+    const onQuestsChange = () => setQuestProgress(getTodayProgress());
+    window.addEventListener('zerocall-quests', onQuestsChange);
+    const pointsInterval = setInterval(() => {
+      setPts(getPoints());
+      setQuestProgress(getTodayProgress());
+    }, 3000);
+    return () => {
+      window.removeEventListener('zerocall-mute', onMuteChange);
+      window.removeEventListener('zerocall-points', onPointsChange);
+      window.removeEventListener('zerocall-quests', onQuestsChange);
+      clearInterval(pointsInterval);
+    };
   }, []);
 
   const toggleMute = () => {
     const next = !muted;
     setMutedState(next);
     writeMuted(next);
-    // This click is a user gesture, so starting/stopping the shared chiptune
-    // here works even if the AudioContext was never touched before. Once
-    // started, it's a module-level singleton that keeps playing across
-    // every route change — not tied to this Nav instance.
     const t = getChiptune();
     if (next) t.stop();
     else t.start();
@@ -58,8 +74,10 @@ export function Nav() {
     { href: '/', label: 'HOME' },
     { href: '/global', label: 'PREDICT' },
     { href: '/agents', label: 'AGENTS' },
-    { href: '/penalty', label: 'PENALTY' },
   ];
+
+  const isGamesActive = pathname === '/psg' || pathname === '/head2head';
+  const hasUnclaimedQuest = DAILY_QUESTS.some(q => !questProgress[q.id]?.completed);
 
   const connectWallet = async () => {
     if (typeof window !== 'undefined' && (window as any).ethereum) {
@@ -111,7 +129,7 @@ export function Nav() {
             ZEROCALL
           </Link>
 
-          {/* Desktop nav — thick arcade buttons */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1.5">
             {links.map((link) => (
               <Link
@@ -126,15 +144,120 @@ export function Nav() {
                 {link.label}
               </Link>
             ))}
+
+            {/* GAMES dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowGamesMenu(v => !v)}
+                className={`font-pixel text-[8px] tracking-wider transition-all px-3 py-2 border-2 flex items-center gap-1 ${
+                  isGamesActive
+                    ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 border-[var(--neon-cyan)]/40 shadow-[inset_0_0_20px_rgba(0,229,255,0.06),0_2px_0_rgba(0,229,255,0.2)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--neon-cyan)] hover:bg-white/5 border-white/10 hover:border-[var(--neon-cyan)]/30 shadow-[inset_0_0_12px_rgba(255,255,255,0.01),0_2px_0_rgba(255,255,255,0.05)]'
+                }`}
+              >
+                GAMES <span className="text-[7px]">▼</span>
+              </button>
+              <AnimatePresence>
+                {showGamesMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    onMouseLeave={() => setShowGamesMenu(false)}
+                    className="absolute left-0 mt-2 w-44 card-retro p-2 z-50"
+                  >
+                    <Link
+                      href="/head2head"
+                      onClick={() => setShowGamesMenu(false)}
+                      className={`block font-pixel text-[8px] px-3 py-2 rounded-sm transition-colors ${
+                        pathname === '/head2head'
+                          ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10'
+                          : 'text-[var(--text-muted)] hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      HEAD2HEAD
+                    </Link>
+                    <Link
+                      href="/psg"
+                      onClick={() => setShowGamesMenu(false)}
+                      className={`block font-pixel text-[8px] px-3 py-2 rounded-sm transition-colors ${
+                        pathname === '/psg'
+                          ? 'text-[var(--neon-green)] bg-[var(--neon-green)]/10'
+                          : 'text-[var(--text-muted)] hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      PSG
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Daily quests icon */}
+            <div className="relative hidden sm:block">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowQuestsMenu(v => !v)}
+                className="w-8 h-8 flex items-center justify-center border border-[var(--neon-orange)]/30 rounded-full text-[var(--neon-orange)] hover:bg-[var(--neon-orange)]/10 transition-colors text-xs relative"
+                title="Daily challenges"
+              >
+                <span className="text-sm">⚡</span>
+              </motion.button>
+              <AnimatePresence>
+                {showQuestsMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    onMouseLeave={() => setShowQuestsMenu(false)}
+                    className="absolute right-0 mt-2 w-64 card-retro p-3 z-50"
+                  >
+                    <div className="font-pixel text-[8px] text-[var(--neon-orange)] tracking-widest mb-2">
+                      DAILY CHALLENGES
+                    </div>
+                    <div className="space-y-2">
+                      {DAILY_QUESTS.map(quest => {
+                        const done = questProgress[quest.id]?.completed ?? false;
+                        return (
+                          <div key={quest.id} className={`flex items-center gap-2 p-2 rounded-sm border ${
+                            done ? 'border-[var(--neon-green)]/30 bg-[var(--neon-green)]/5' : 'border-white/10 bg-white/[0.02]'
+                          }`}>
+                            <span className="text-base">{quest.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-pixel text-[8px] text-white">{quest.title}</div>
+                              <div className="font-retro text-xs text-[var(--text-muted)]">{quest.description}</div>
+                            </div>
+                            <div className="shrink-0">
+                              {done ? (
+                                <span className="font-pixel text-[8px] text-[var(--neon-green)]">DONE</span>
+                              ) : (
+                                <Link
+                                  href={quest.id === 'predict_match' ? '/global' : quest.id === 'play_penalty' ? '/psg' : '/head2head'}
+                                  onClick={() => setShowQuestsMenu(false)}
+                                  className="font-pixel text-[8px] px-2 py-1 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)] rounded-sm hover:bg-[var(--neon-cyan)]/10 transition-colors"
+                                >
+                                  GO
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Sound toggle */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={toggleMute}
-              className="w-8 h-8 flex items-center justify-center border border-white/15 rounded-full text-[var(--text-muted)] hover:text-white hover:border-white/30 transition-colors text-xs"
+              className="w-8 h-8 flex items-center justify-center border border-white/15 rounded-full text-[var(--text-muted)] hover:text-white hover:border-white/30 transition-colors text-xs hidden sm:flex"
               title={muted ? 'Unmute' : 'Mute'}
               aria-label={muted ? 'Unmute' : 'Mute'}
             >
@@ -146,19 +269,19 @@ export function Nav() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowHelp(true)}
-              className="w-8 h-8 flex items-center justify-center border border-[var(--neon-yellow)]/30 rounded-full text-[var(--neon-yellow)] hover:bg-[var(--neon-yellow)]/10 transition-colors font-pixel text-xs"
+              className="w-8 h-8 flex items-center justify-center border border-[var(--neon-yellow)]/30 rounded-full text-[var(--neon-yellow)] hover:bg-[var(--neon-yellow)]/10 transition-colors font-pixel text-xs hidden sm:flex"
               title="How it works"
             >
               ?
             </motion.button>
 
-            {/* Connect / identity */}
+            {/* Connect / identity with profile */}
             <div className="relative">
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={walletAddress ? () => setShowWalletMenu((v) => !v) : () => setShowConnect(true)}
-                className={`font-pixel text-[9px] px-3 py-1.5 border rounded-sm transition-colors tracking-widest ${
+                className={`font-pixel text-[9px] px-2 sm:px-3 py-1.5 border rounded-sm transition-colors tracking-widest ${
                   walletAddress
                     ? 'border-[var(--neon-green)]/50 text-[var(--neon-green)] bg-[var(--neon-green)]/10 hover:bg-[var(--neon-green)]/15'
                     : 'border-[var(--neon-cyan)]/60 text-[var(--neon-cyan)] hover:bg-[var(--neon-cyan)]/10 animate-pulse'
@@ -180,9 +303,25 @@ export function Nav() {
                     <div className="font-pixel text-[8px] text-[var(--text-muted)] tracking-widest mb-1">
                       {isGuest ? 'GUEST SESSION' : 'WALLET'}
                     </div>
-                    <div className="font-pixel text-[10px] text-white break-all mb-3">
+                    <div className="font-pixel text-[10px] text-white break-all mb-2">
                       {isGuest ? displayName : walletAddress}
                     </div>
+
+                    {/* 0G Points */}
+                    <div className="flex items-center justify-between p-2 rounded-sm border border-[var(--neon-cyan)]/20 bg-[var(--neon-cyan)]/5 mb-2">
+                      <span className="font-pixel text-[8px] text-[var(--text-muted)] tracking-widest">0G PTS</span>
+                      <span className="font-pixel text-sm text-[var(--neon-cyan)]">{pts}</span>
+                    </div>
+
+                    {/* Profile link */}
+                    <Link
+                      href="/profile"
+                      onClick={() => setShowWalletMenu(false)}
+                      className="block w-full font-pixel text-[9px] tracking-widest py-2 mb-2 border border-[var(--neon-green)]/30 text-[var(--neon-green)] rounded-sm hover:bg-[var(--neon-green)]/10 transition-colors text-center"
+                    >
+                      VIEW PROFILE
+                    </Link>
+
                     <button
                       onClick={() => { setShowWalletMenu(false); setWalletAddress(null); }}
                       className="w-full font-pixel text-[9px] tracking-widest py-2 border border-red-500/40 text-red-300 rounded-sm hover:bg-red-500/15 transition-colors"
@@ -197,42 +336,82 @@ export function Nav() {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden font-pixel text-lg text-[var(--neon-cyan)]"
+              className="md:hidden w-8 h-8 flex items-center justify-center border border-[var(--neon-cyan)]/30 rounded-sm text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/5 hover:bg-[var(--neon-cyan)]/15 transition-all cursor-pointer select-none ml-0.5 shadow-[0_0_6px_rgba(0,229,255,0.05)]"
               aria-label={showMobileMenu ? 'Close menu' : 'Open menu'}
               aria-expanded={showMobileMenu}
             >
-              {showMobileMenu ? '✕' : '☰'}
+              <div className="flex flex-col justify-center items-center w-4 h-4 relative">
+                <span className={`absolute block w-3.5 h-[1.5px] bg-[var(--neon-cyan)] transition-all duration-300 ${showMobileMenu ? 'rotate-45' : '-translate-y-1'}`} />
+                <span className={`absolute block w-3.5 h-[1.5px] bg-[var(--neon-cyan)] transition-all duration-300 ${showMobileMenu ? 'opacity-0' : ''}`} />
+                <span className={`absolute block w-3.5 h-[1.5px] bg-[var(--neon-cyan)] transition-all duration-300 ${showMobileMenu ? '-rotate-45' : 'translate-y-1'}`} />
+              </div>
             </button>
           </div>
         </div>
 
         {/* Mobile menu */}
         <AnimatePresence>
-          {showMobileMenu && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden overflow-hidden border-t border-white/10"
-            >
-              <div className="px-4 py-3 flex flex-wrap gap-2">
-                {links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setShowMobileMenu(false)}
-                    className={`font-pixel text-[8px] px-3 py-2 border-2 transition-all ${
-                      pathname === link.href
-                        ? 'text-[var(--neon-cyan)] bg-[var(--neon-cyan)]/10 border-[var(--neon-cyan)]/40 shadow-[inset_0_0_16px_rgba(0,229,255,0.06)]'
-                        : 'text-[var(--text-muted)] border-white/10'
-                    }`}
+          {showMobileMenu && (() => {
+            const mobileMenuLinks = [
+              { href: '/', label: 'HOME', borderStyle: 'border-[var(--neon-green)]/45 text-[var(--neon-green)] shadow-[inset_0_0_10px_rgba(0,255,136,0.06),0_0_12px_rgba(0,255,136,0.15)] bg-[var(--neon-green)]/5' },
+              { href: '/global', label: 'PREDICT', borderStyle: 'border-[var(--neon-cyan)]/45 text-[var(--neon-cyan)] shadow-[inset_0_0_10px_rgba(0,229,255,0.06),0_0_12px_rgba(0,229,255,0.15)] bg-[var(--neon-cyan)]/5' },
+              { href: '/agents', label: 'AGENTS', borderStyle: 'border-[var(--neon-yellow)]/45 text-[var(--neon-yellow)] shadow-[inset_0_0_10px_rgba(255,229,0,0.06),0_0_12px_rgba(255,229,0,0.15)] bg-[var(--neon-yellow)]/5' },
+              { href: '/head2head', label: 'HEAD2HEAD', borderStyle: 'border-[var(--neon-magenta)]/45 text-[var(--neon-magenta)] shadow-[inset_0_0_10px_rgba(255,0,255,0.06),0_0_12px_rgba(255,0,255,0.15)] bg-[var(--neon-magenta)]/5' },
+              { href: '/psg', label: 'PSG', borderStyle: 'border-[var(--neon-orange)]/45 text-[var(--neon-orange)] shadow-[inset_0_0_10px_rgba(255,102,0,0.06),0_0_12px_rgba(255,102,0,0.15)] bg-[var(--neon-orange)]/5' },
+            ];
+
+            return (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="md:hidden overflow-hidden border-t border-white/10 bg-[#070a14]"
+              >
+                {/* Links Grid */}
+                <div className="grid grid-cols-2 gap-1.5 p-2.5">
+                  {mobileMenuLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setShowMobileMenu(false)}
+                      className={`font-pixel text-[8px] py-2.5 border-2 text-center transition-all ${
+                        pathname === link.href
+                          ? link.borderStyle
+                          : 'text-[var(--text-muted)] border-white/10 hover:text-white hover:border-white/25 bg-black/10'
+                      }`}
+                    >
+                      {pathname === link.href ? `▸ ${link.label}` : link.label}
+                    </Link>
+                  ))}
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowQuestsMenu(true); }}
+                    className="font-pixel text-[8px] py-2.5 border-2 border-[var(--neon-orange)]/45 text-[var(--neon-orange)] bg-[var(--neon-orange)]/5 hover:bg-[var(--neon-orange)]/15 transition-all text-center cursor-pointer shadow-[inset_0_0_10px_rgba(255,102,0,0.06)] active:scale-95"
                   >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-          )}
+                    ⚡ QUESTS
+                  </button>
+                </div>
+
+                {/* Symmetrical Settings Footer Bar */}
+                <div className="flex items-center justify-between px-3 py-2 border-t border-white/5 bg-black/25 gap-2">
+                  <span className="font-pixel text-[7px] text-[var(--text-muted)] tracking-widest mr-auto">SETTINGS</span>
+                  <div className="flex gap-1.5 shrink-0">
+                    <button
+                      onClick={toggleMute}
+                      className="w-7 h-7 flex items-center justify-center border border-white/10 rounded-full text-[var(--text-muted)] hover:text-white text-xs bg-black/30 hover:bg-black/50 transition-colors cursor-pointer"
+                    >
+                      {muted ? '🔇' : '🔊'}
+                    </button>
+                    <button
+                      onClick={() => { setShowMobileMenu(false); setShowHelp(true); }}
+                      className="w-7 h-7 flex items-center justify-center border border-[var(--neon-yellow)]/30 rounded-full text-[var(--neon-yellow)] font-pixel text-xs bg-black/30 hover:bg-black/50 transition-colors cursor-pointer"
+                    >
+                      ?
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
       </nav>
 
@@ -258,20 +437,18 @@ export function Nav() {
                 <button onClick={() => setShowConnect(false)} aria-label="Close" className="font-pixel text-xs text-[var(--text-muted)] hover:text-white">✕</button>
               </div>
 
-              {/* Wallet path */}
               <button
                 onClick={() => { setShowConnect(false); connectWallet(); }}
                 className="w-full mb-3 p-3 border border-[var(--neon-green)]/40 rounded-sm bg-[var(--neon-green)]/5 hover:bg-[var(--neon-green)]/15 transition-colors text-left"
               >
-                <div className="font-pixel text-[10px] text-[var(--neon-green)] mb-1">⛓ CONNECT WALLET</div>
-                <div className="font-retro text-sm text-[var(--text-muted)]">MetaMask · 0G Galileo testnet. Predictions sealed with your wallet.</div>
+                <div className="font-pixel text-[10px] text-[var(--neon-green)] mb-1">CONNECT WALLET</div>
+                <div className="font-retro text-sm text-[var(--text-muted)]">MetaMask. 0G Galileo testnet. Predictions sealed with your wallet.</div>
               </button>
 
               <div className="font-pixel text-[8px] text-[var(--text-muted)] text-center my-3 tracking-widest">OR</div>
 
-              {/* Guest path */}
               <div className="p-3 border border-[var(--neon-cyan)]/30 rounded-sm bg-[var(--neon-cyan)]/5">
-                <div className="font-pixel text-[10px] text-[var(--neon-cyan)] mb-1">👤 PLAY AS GUEST</div>
+                <div className="font-pixel text-[10px] text-[var(--neon-cyan)] mb-1">PLAY AS GUEST</div>
                 <div className="font-retro text-sm text-[var(--text-muted)] mb-3">No wallet. Picks lock with a demo hash.</div>
                 <form onSubmit={(e) => { e.preventDefault(); playAsGuest(); }} className="flex gap-2">
                   <input
@@ -283,7 +460,7 @@ export function Nav() {
                     className="flex-1 bg-[var(--bg-secondary)] border border-white/15 rounded-sm px-2 py-1.5 font-pixel text-[10px] text-white placeholder:text-white/30 focus:border-[var(--neon-cyan)]/60 outline-none uppercase"
                   />
                   <button type="submit" disabled={!guestName.trim()} className="font-pixel text-[9px] px-3 py-1.5 bg-[var(--neon-cyan)] text-[var(--bg-primary)] rounded-sm disabled:opacity-30 disabled:cursor-not-allowed">
-                    ENTER ▶
+                    ENTER
                   </button>
                 </form>
               </div>
@@ -332,12 +509,12 @@ export function Nav() {
 
               <div className="space-y-4">
                 {[
-                  { step: '01', icon: '🔗', title: 'CONNECT OR GO GUEST', desc: 'Plug in a 0G Galileo wallet, or just type a username and play. Either way your picks count.' },
-                  { step: '02', icon: '⚽', title: 'PREDICT MATCHES', desc: 'Open PREDICT, scroll the World Cup 2026 fixtures, hit CALL IT. Pick Home / Draw / Away — and the exact score for bonus 0G Points.' },
-                  { step: '03', icon: '🔒', title: 'LOCK ON 0G', desc: 'Every pick uploads to 0G Storage with a content hash. A 🔒 0G badge appears on the card — click to view on 0G Explorer.' },
-                  { step: '04', icon: '🤖', title: 'BEAT THE AGENTS', desc: 'Six AI agents (Vega, Ronin, Sage, Halo, Knox, Phoenix) predict every fixture via 0G Compute. Each plays in character — see who you can out-call.' },
-                  { step: '05', icon: '🥅', title: 'PLAY THE SHOOTOUT', desc: 'Penalty Shootout: 5 shots vs an AI keeper. Each agent saves differently — Vega mirrors, Ronin guesses extremes, Sage reads your patterns, Knox parks center. Win a shootout = +10 0G Points.' },
-                  { step: '06', icon: '🏆', title: 'CLIMB THE BOARD', desc: '+3 for correct outcome, +2 for exact score. Open LEADERBOARD — you and the six AI agents ranked on one board.' },
+                  { step: '01', icon: '01', title: 'CONNECT OR GO GUEST', desc: 'Plug in a 0G Galileo wallet, or just type a username and play. Either way your picks count.' },
+                  { step: '02', icon: '02', title: 'PREDICT MATCHES', desc: 'Open PREDICT, scroll the World Cup 2026 fixtures, hit CALL IT. Pick Home / Draw / Away — and the exact score for bonus 0G Points.' },
+                  { step: '03', icon: '03', title: 'LOCK ON 0G', desc: 'Every pick uploads to 0G Storage with a content hash. A badge appears on the card — click to view on 0G Explorer.' },
+                  { step: '04', icon: '04', title: 'BEAT THE AGENTS', desc: 'Six AI agents predict every fixture via 0G Compute. Each plays in character — see who you can out-call.' },
+                  { step: '05', icon: '05', title: 'PLAY THE GAMES', desc: 'PSG: 5 shots vs an AI keeper. Head2Head: pick two FC teams and watch them battle on the pixel pitch.' },
+                  { step: '06', icon: '06', title: 'CLIMB THE BOARD', desc: '+15 for correct outcome, +10 for exact score. You and the six AI agents ranked on one board.' },
                 ].map((item) => (
                   <div key={item.step} className="flex gap-3">
                     <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-sm bg-[var(--bg-secondary)] border border-white/10">
@@ -356,9 +533,9 @@ export function Nav() {
               <div className="mt-6 pt-4 border-t border-white/10">
                 <h3 className="font-pixel text-[9px] text-[var(--neon-green)] mb-2">SCORING</h3>
                 <div className="grid grid-cols-2 gap-2 font-retro text-sm text-[var(--text-muted)]">
-                  <div>✓ Correct outcome</div><div className="text-[var(--neon-green)]">+3 pts</div>
-                  <div>⭐ Exact score bonus</div><div className="text-[var(--neon-yellow)]">+2 pts</div>
-                  <div>✗ Wrong prediction</div><div className="text-red-400">0 pts</div>
+                  <div>Correct outcome</div><div className="text-[var(--neon-green)]">+15 pts</div>
+                  <div>Exact score bonus</div><div className="text-[var(--neon-yellow)]">+10 pts</div>
+                  <div>Wrong prediction</div><div className="text-red-400">0 pts</div>
                 </div>
               </div>
 

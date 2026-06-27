@@ -86,3 +86,29 @@ export function getHumanPredictor(walletAddress: string | null): Predictor {
 export function getAllPredictors(walletAddress: string | null): Predictor[] {
   return [getHumanPredictor(walletAddress), ...AGENTS];
 }
+
+const POINTS_KEY = 'zerocall_points';
+const WELCOME_BONUS = 100;
+
+export function loadPoints(): number {
+  if (typeof window === 'undefined') return WELCOME_BONUS;
+  const raw = localStorage.getItem(POINTS_KEY);
+  if (raw === null) {
+    localStorage.setItem(POINTS_KEY, String(WELCOME_BONUS));
+    return WELCOME_BONUS;
+  }
+  return parseInt(raw, 10) || 0;
+}
+
+export function addPoints(amount: number): number {
+  if (typeof window === 'undefined') return 0;
+  const current = loadPoints();
+  const next = current + amount;
+  localStorage.setItem(POINTS_KEY, String(next));
+  window.dispatchEvent(new CustomEvent('zerocall-points', { detail: next }));
+  return next;
+}
+
+export function getPoints(): number {
+  return loadPoints();
+}

@@ -21,11 +21,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log(`[0G Compute] Agent ${agentId} predicting: ${match.homeTeam} vs ${match.awayTeam}`);
     const prediction = await generateAgentPick(agentId, match);
+    console.log(`[0G Compute] Agent ${agentId} result:`, prediction.outcome, prediction.score.home + '-' + prediction.score.away);
 
     return NextResponse.json({ success: true, prediction });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
+    console.error(`[0G Compute] Error:`, message);
     return NextResponse.json(
       { success: false, error: message },
       { status: 500 }

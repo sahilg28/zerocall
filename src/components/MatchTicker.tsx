@@ -19,7 +19,7 @@ export function MatchTicker() {
     <>
       {finishedMatches.map((m) => (
         <span key={m.id} className="inline-flex items-center gap-1.5 px-3 shrink-0">
-          <span className="font-pixel text-[6px] text-[var(--neon-green)]/60">FT</span>
+          <span className="font-pixel text-[8px] text-[var(--neon-green)]/60">FT</span>
           <img src={getFlagUrl(m.homeTeam)} alt="" className="w-4 h-3 rounded-sm" />
           <span className="font-pixel text-[8px] text-[var(--text-muted)]">
             {m.homeTeam.slice(0, 3).toUpperCase()}
@@ -41,7 +41,7 @@ export function MatchTicker() {
 
       {upcomingMatches.length > 0 && (
         <span className="inline-flex items-center px-2 shrink-0">
-          <span className="font-pixel text-[6px] text-[var(--neon-orange)] tracking-wider mr-2">UPCOMING</span>
+          <span className="font-pixel text-[8px] text-[var(--neon-orange)] tracking-wider mr-2">UPCOMING</span>
         </span>
       )}
 
@@ -53,9 +53,9 @@ export function MatchTicker() {
         return (
           <span key={m.id} className="inline-flex items-center gap-1.5 px-3 shrink-0">
             {isLive ? (
-              <span className="font-pixel text-[6px] text-red-400 animate-pulse">LIVE</span>
+              <span className="font-pixel text-[8px] text-red-400 animate-pulse">LIVE</span>
             ) : (
-              <span className="font-pixel text-[6px] text-[var(--neon-cyan)]/60">{dateStr}</span>
+              <span className="font-pixel text-[8px] text-[var(--neon-cyan)]/60">{dateStr}</span>
             )}
             <img src={getFlagUrl(m.homeTeam)} alt="" className="w-4 h-3 rounded-sm" />
             <span className="font-pixel text-[8px] text-[var(--text-muted)]">
@@ -67,7 +67,7 @@ export function MatchTicker() {
             </span>
             <img src={getFlagUrl(m.awayTeam)} alt="" className="w-4 h-3 rounded-sm" />
             {!isLive && (
-              <span className="font-pixel text-[6px] text-[var(--text-muted)]/50">{timeStr}</span>
+              <span className="font-pixel text-[8px] text-[var(--text-muted)]/50">{timeStr}</span>
             )}
             <span className="text-[var(--text-muted)]/20 px-1">│</span>
           </span>

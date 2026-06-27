@@ -114,10 +114,10 @@ export default function BracketPage() {
                 </div>
                 <div className="space-y-1">
                   <div className="grid grid-cols-[1fr_35px_30px_30px] gap-1 px-1 pb-1 border-b border-white/10">
-                    <span className="font-pixel text-[7px] text-[var(--text-muted)]">TEAM</span>
-                    <span className="font-pixel text-[7px] text-[var(--text-muted)] text-right">PTS</span>
-                    <span className="font-pixel text-[7px] text-[var(--text-muted)] text-right">GD</span>
-                    <span className="font-pixel text-[7px] text-[var(--text-muted)] text-right">GF</span>
+                    <span className="font-pixel text-[8px] text-[var(--text-muted)]">TEAM</span>
+                    <span className="font-pixel text-[8px] text-[var(--text-muted)] text-right">PTS</span>
+                    <span className="font-pixel text-[8px] text-[var(--text-muted)] text-right">GD</span>
+                    <span className="font-pixel text-[8px] text-[var(--text-muted)] text-right">GF</span>
                   </div>
                   {teams.map((team, ti) => (
                     <div

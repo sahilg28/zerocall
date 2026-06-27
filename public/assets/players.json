@@ -1,0 +1,29 @@
+{
+  "image": "/assets/players.png",
+  "cols": 16,
+  "rows": 1,
+  "frameW": 231,
+  "frameH": 268,
+  "scale": 1.15,
+  "tint": true,
+  "frames": {
+    "idle": 0,
+    "run0": 1,
+    "run1": 2,
+    "shoot": 3,
+    "celebrate": 4,
+    "fall": 5,
+    "idle_run0": 6,
+    "run0_run1": 7,
+    "run1_shoot": 8,
+    "shoot_celebrate": 9,
+    "celebrate_idle": 10,
+    "idle_fall": 11,
+    "run0_fall": 12,
+    "run1_fall": 13,
+    "shoot_fall": 14,
+    "fall_idle": 15,
+    "dribble0": 1,
+    "dribble1": 2
+  }
+}
